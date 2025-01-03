@@ -32,7 +32,7 @@ function App() {
   })
   const [multipliers, setMultipliers] = useState({
     criticalChance: 1,
-    trailLength: 1,
+    trailLength: 0.2,
     doubleClickChance: 0,
     critMultiplier: 10,
     hacksPerSecond: 0,
@@ -44,6 +44,11 @@ function App() {
   const [previousRank, setPreviousRank] = useState(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [hiddenHacks, setHiddenHacks] = useState([])
+  const [isUIDisabled, setIsUIDisabled] = useState(false)
+  const [isGlitchMode] = useState(() => {
+    const glitchLevel = parseInt(localStorage.getItem('glitchLevel') || '0')
+    return glitchLevel > 0 && localStorage.getItem('glitchMode') === 'true'
+  })
 
   const zalgo = (text) => {
     const zalgoChars = [
@@ -146,7 +151,7 @@ function App() {
       },
       unauthRce: {
         name: "Unauth RCE",
-        baseCost: 128,
+        baseCost: 256,
         maxLevel: 5,
         description: <>Adds <span className="stat-increase">+2%</span> chance for {colorText.legendary('LEGENDARY')} hits (100x)</>,
         onBuy: () => {
@@ -172,7 +177,7 @@ function App() {
     'C2 Operator': {
       steganography: {
         name: "Steganography C2 Comms",
-        baseCost: 256,
+        baseCost: 512,
         maxLevel: 5,
         description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+2%</span> and multiplier by <span className="stat-increase">+2x</span></>,
         onBuy: () => {
@@ -319,12 +324,16 @@ function App() {
         name: "LGTM a GitHub PR",
         baseCost: 32768,
         maxLevel: 5,
-        description: <>Increases hacks per second by <span className="stat-increase">+2</span></>,
+        description: <>Increases hacks per second by <span className="stat-increase">+2</span>, and trail length by <span className="stat-increase">+1</span> at level 5</>,
         onBuy: () => {
-          setMultipliers(prev => ({
-            ...prev,
-            hacksPerSecond: prev.hacksPerSecond + 2
-          }))
+          setMultipliers(prev => {
+            const newLevel = ownedHacks.lgtmPR + 1
+            return {
+              ...prev,
+              hacksPerSecond: prev.hacksPerSecond + 2,
+              trailLength: prev.trailLength + (newLevel === 5 ? 1 : 0)
+            }
+          })
         }
       }
     },
@@ -345,59 +354,80 @@ function App() {
       glitch: {
         name: zalgo("GLITCH"),
         baseCost: 2097152,
-        maxLevel: 1,
-        description: <span style={{ color: '#800080' }}>{ zalgo("??????????????") }</span>,
+        maxLevel: 999,
+        description: <span style={{ color: '#800080' }}>{ 
+          ownedHacks.glitch === 0 ? 
+          zalgo("????????????????") : 
+          zalgo("ASCEND TO THE NEXT GLITCH LEVEL") 
+        }</span>,
         onBuy: () => {
-          const width = window.innerWidth
-          const height = window.innerHeight
-          const totalChars = 1500
-          const batchSize = 100
-          const batches = Math.ceil(totalChars / batchSize)
-          let currentBatch = 0
+          // Increment glitch level with each purchase
+          setOwnedHacks(prev => {
+            const newLevel = prev.glitch + 1
+            localStorage.setItem('glitchLevel', newLevel.toString())
+            return {
+              ...prev,
+              glitch: newLevel
+            }
+          })
 
-          const addBatch = () => {
-            if (currentBatch >= batches) {
-              setTimeout(() => {
-                const flash = document.createElement('div')
-                flash.style.position = 'fixed'
-                flash.style.top = '0'
-                flash.style.left = '0'
-                flash.style.width = '100%'
-                flash.style.height = '100%'
-                flash.style.background = 'white'
-                flash.style.zIndex = '9999'
-                flash.style.animation = 'flash 0.5s ease-out forwards'
-                document.body.appendChild(flash)
+          // Disable UI immediately
+          setIsUIDisabled(true)
+          localStorage.setItem('glitchMode', 'true')
 
+          // Add a small delay before starting the glitch animation
+          setTimeout(() => {
+            const width = window.innerWidth
+            const height = window.innerHeight
+            const totalChars = 1500
+            const batchSize = 100
+            const batches = Math.ceil(totalChars / batchSize)
+            let currentBatch = 0
+
+            const addBatch = () => {
+              if (currentBatch >= batches) {
                 setTimeout(() => {
-                  flash.remove()
-                  window.location.reload()
-                }, 500)
-              }, 1000)
-              return
+                  const flash = document.createElement('div')
+                  flash.style.position = 'fixed'
+                  flash.style.top = '0'
+                  flash.style.left = '0'
+                  flash.style.width = '100%'
+                  flash.style.height = '100%'
+                  flash.style.background = 'white'
+                  flash.style.zIndex = '9999'
+                  flash.style.animation = 'flash 0.5s ease-out forwards'
+                  document.body.appendChild(flash)
+
+                  setTimeout(() => {
+                    flash.remove()
+                    window.location.reload()
+                  }, 500)
+                }, 1000)
+                return
+              }
+
+              const chars = new Array(batchSize).fill(null).map((_, i) => ({
+                char: matrixCharacters[Math.floor(Math.random() * matrixCharacters.length)],
+                x: Math.random() * width,
+                y: Math.random() * height,
+                id: Date.now() + currentBatch * batchSize + i,
+                opacity: 1,
+                startTime: Date.now(),
+                duration: 2000,
+                style: {
+                  color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                  fontSize: '24px',
+                  textShadow: '0 0 5px currentColor'
+                }
+              }))
+
+              setMatrixChars(prev => [...prev.slice(-MAX_MATRIX_CHARS + batchSize), ...chars])
+              currentBatch++
+              requestAnimationFrame(addBatch)
             }
 
-            const chars = new Array(batchSize).fill(null).map((_, i) => ({
-              char: matrixCharacters[Math.floor(Math.random() * matrixCharacters.length)],
-              x: Math.random() * width,
-              y: Math.random() * height,
-              id: Date.now() + currentBatch * batchSize + i,
-              opacity: 1,
-              startTime: Date.now(),
-              duration: 2000,
-              style: {
-                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                fontSize: '24px',
-                textShadow: '0 0 5px currentColor'
-              }
-            }))
-
-            setMatrixChars(prev => [...prev.slice(-MAX_MATRIX_CHARS + batchSize), ...chars])
-            currentBatch++
             requestAnimationFrame(addBatch)
-          }
-
-          requestAnimationFrame(addBatch)
+          }, 100) // Add 100ms delay
         }
       }
     }
@@ -405,7 +435,7 @@ function App() {
 
   const matrixCharacters = 'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ012345789Z'
 
-  const getTrailLength = () => Math.floor(5 * multipliers.trailLength)
+  const getTrailLength = () => Math.max(1, Math.floor(2 * multipliers.trailLength))
   const getCriticalChance = () => 0.01 * multipliers.criticalChance
   const getDoubleClickChance = () => 0.01 * multipliers.doubleClickChance
   const getCritMultiplier = () => multipliers.critMultiplier
@@ -532,9 +562,13 @@ function App() {
   }
 
   const addZeroday = () => {
-    const x = Math.random() * window.innerWidth
+    const windowWidth = window.innerWidth
+    const safeWidth = windowWidth - (5 * 20) // 5 columns, assuming each is ~20px wide
+    
+    // Restrict x position to safe area
+    const x = Math.random() * safeWidth
+    
     const baseId = Date.now() + Math.random()
-
     const windowHeight = window.innerHeight
     const extraDistance = windowHeight * 0.2
     const fallSpeed = windowHeight / 4
@@ -649,8 +683,10 @@ function App() {
   }
 
   const getRank = () => {
-    // Calculate total upgrades purchased across all hacks
-    const totalUpgrades = Object.values(ownedHacks).reduce((sum, level) => sum + level, 0)
+    // Calculate total upgrades purchased across all hacks, excluding glitch
+    const totalUpgrades = Object.entries(ownedHacks).reduce((sum, [hackId, level]) => 
+      hackId === 'glitch' ? sum : sum + level, 0
+    )
     
     // Each rank requires 20 more upgrades
     if (totalUpgrades >= 100) return { name: 'AI 0day', color: '#ff0000' }         // Red
@@ -664,8 +700,11 @@ function App() {
   const getStatsText = () => {
     const stats = []
     
-    // Calculate rank info
-    const totalUpgrades = Object.values(ownedHacks).reduce((sum, level) => sum + level, 0)
+    // Calculate rank info, excluding glitch from total upgrades
+    const totalUpgrades = Object.entries(ownedHacks).reduce((sum, [hackId, level]) => 
+      hackId === 'glitch' ? sum : sum + level, 0
+    )
+    
     const rank = getRank()
     const nextRankThreshold = 
       totalUpgrades < 20 ? 20 :
@@ -682,9 +721,19 @@ function App() {
       stats.push('Maximum Rank!')
     }
     stats.push('') // Empty line for spacing
+
+    // Add glitch level in glitch mode
+    if (isGlitchMode) {
+      const text = "GLITCH  LEVEL:  " + ownedHacks.glitch  // Add extra spaces
+      const chars = text.split('').map((char, i) => 
+        `<span class="static-rainbow-char" data-index="${i}">${char}</span>`
+      ).join('')
+      stats.push(chars)
+      stats.push('') // Empty line after glitch level
+    }
     
     const criticalChance = (getCriticalChance() * 100).toFixed(2)
-    stats.push(`CRITICAL: ${criticalChance}% (${getCritMultiplier()}x multi)`)
+    stats.push(`<span style="color: #ff0000">CRITICAL: ${criticalChance}% (${getCritMultiplier()}x multi)</span>`)
 
     // Show legendary chance if Unauth RCE is owned
     if (ownedHacks.unauthRce > 0) {
@@ -767,9 +816,59 @@ function App() {
     return num.toLocaleString()
   }
 
+  useEffect(() => {
+    if (ownedHacks.glitch === 0) {
+      localStorage.setItem('glitchMode', 'false')
+    }
+  }, [ownedHacks.glitch])
+
+  // Add this function to generate random bright colors for the glitch text
+  const getRandomBrightColor = () => {
+    const hue = Math.floor(Math.random() * 360)
+    return `hsl(${hue}, 100%, 50%)`
+  }
+
+  // Then add a useEffect to load the glitch level once on mount
+  useEffect(() => {
+    const savedGlitchLevel = parseInt(localStorage.getItem('glitchLevel') || '0')
+    if (savedGlitchLevel > 0) {
+      setOwnedHacks(prev => ({
+        ...prev,
+        glitch: savedGlitchLevel
+      }))
+    }
+  }, []) // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    if (isGlitchMode) {
+      const interval = setInterval(() => {
+        const chars = document.querySelectorAll('.static-rainbow-char')
+        if (chars.length > 0) {
+          const startIndex = Math.floor(Math.random() * chars.length)
+          const length = Math.floor(Math.random() * 3) + 3
+          
+          // Generate a random color for this group
+          const color = getRandomBrightColor()
+          
+          for (let i = 0; i < length; i++) {
+            const index = (startIndex + i) % chars.length
+            const char = chars[index]
+            char.style.setProperty('--flash-color', color)
+            char.classList.add('animate')
+            setTimeout(() => {
+              char.classList.remove('animate')
+            }, 2000)
+          }
+        }
+      }, 3000)
+
+      return () => clearInterval(interval)
+    }
+  }, [isGlitchMode])
+
   return (
     <>
-      <div className="matrix-background">
+      <div className={`matrix-background ${isGlitchMode ? 'glitch-mode' : ''}`}>
         {matrixChars.map(({ char, x, y, id, opacity, isCritical, isExplosion, isZeroday, isLegendary, style }) => (
           <span
             key={id}
@@ -782,26 +881,64 @@ function App() {
               left: `${x}px`,
               top: `${y}px`,
               opacity,
-              ...(isZeroday ? style : {})
+              ...(isZeroday ? style : {}),
+              ...(isGlitchMode ? {
+                '--random': Math.random(),
+                ...(isZeroday ? {
+                  '--base-color': '#ff69b4',
+                  animation: 'fall 4s linear forwards, rotateHue 1s linear infinite'
+                } : isCritical ? {
+                  '--base-color': '#ff0000',
+                  animation: 'fall 2s linear forwards, rotateHue 1s linear infinite'
+                } : isLegendary ? {
+                  '--base-color': '#ffa500',
+                  animation: 'fall 2s linear forwards, rotateHue 1s linear infinite'
+                } : {
+                  '--random': Math.random()
+                })
+              } : {})
             }}
           >
             {char}
           </span>
         ))}
       </div>
-      <div className="game-container">
-        <div className="score">{formatNumber(score)}</div>
+      <div className={`game-container ${isGlitchMode ? 'glitch-mode' : ''}`} 
+           style={{ pointerEvents: isUIDisabled ? 'none' : 'auto' }}>
+        <div className="score">
+          {isGlitchMode ? zalgo(formatNumber(score)) : formatNumber(score)}
+        </div>
         <div className="instruction-text">
-          {getInstructionText()}
-          <br />
-          <span className="critical-text" style={{ whiteSpace: 'pre-line' }}>
-            <span style={{ color: getRank().color, fontWeight: 'bold' }}>
-              {getStatsText().split('\n')[0]}
-            </span>
-            <span dangerouslySetInnerHTML={{ 
-              __html: '\n' + getStatsText().split('\n').slice(1).join('\n') 
-            }} />
-          </span>
+          {isGlitchMode ? (
+            <>
+              {zalgo(getInstructionText())}
+              <br />
+              <span className="critical-text" style={{ whiteSpace: 'pre-line', color: '#800080' }}>
+                <span style={{ color: '#d000d0', fontWeight: 'bold' }}>
+                  {getStatsText().split('\n')[0]}
+                </span>
+                <span 
+                  className="stats-text"
+                  dangerouslySetInnerHTML={{ 
+                    __html: '\n' + getStatsText().split('\n').slice(1).join('\n')
+                  }}
+                />
+              </span>
+            </>
+          ) : (
+            <>
+              {getInstructionText()}
+              <br />
+              <span className="critical-text" style={{ whiteSpace: 'pre-line' }}>
+                <span style={{ color: getRank().color, fontWeight: 'bold' }}>
+                  {getStatsText().split('\n')[0]}
+                </span>
+                <span dangerouslySetInnerHTML={{ 
+                  __html: '\n' + getStatsText().split('\n').slice(1).join('\n')
+                }} />
+              </span>
+            </>
+          )}
         </div>
         {showHackButton && (
           <div className="hack-button-container">
@@ -810,12 +947,12 @@ function App() {
               onClick={handleHack}
             >
               HACK!
-            </button>
+        </button>
           </div>
         )}
       </div>
-      {showHackOverlay && (
-        <div className="hack-overlay" onClick={(e) => e.stopPropagation()}>
+      {showHackOverlay && !isUIDisabled && (
+        <div className={`hack-overlay ${isGlitchMode ? 'glitch-mode' : ''}`}>
           <div className="hack-overlay-content">
             <button className="close-button" onClick={() => setShowHackOverlay(false)}>×</button>
             <h2>Available Hacks</h2>
@@ -828,7 +965,8 @@ function App() {
               .map(([rank, hacks]) => {
                 // Check if all hacks in this rank are hidden
                 const allHacksHidden = Object.keys(hacks).every(hackId => 
-                  hiddenHacks.includes(hackId)
+                  // Don't hide the glitch hack even in glitch mode
+                  hackId !== 'glitch' && hiddenHacks.includes(hackId)
                 )
 
                 // Skip rendering this rank group if all hacks are hidden
@@ -846,8 +984,8 @@ function App() {
                       const canAfford = score >= cost
                       const maxedOut = currentLevel >= hack.maxLevel
 
-                      // Don't render if hack is hidden
-                      if (hiddenHacks.includes(hackId)) return null
+                      // Don't hide glitch hack in glitch mode
+                      if (hiddenHacks.includes(hackId) && hackId !== 'glitch') return null
 
                       return (
                         <div 
