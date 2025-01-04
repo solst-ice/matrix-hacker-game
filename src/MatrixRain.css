@@ -163,14 +163,21 @@
 
 .close-button {
   position: absolute;
-  top: 0;
-  right: 0;
-  background: none;
-  border: none;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 0, 0, 0.2);
+  border: 1px solid #0f0;
   color: #0f0;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 10px;
+  font-size: 20px;
+  padding: 2px 25px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+
+.close-button:hover {
+  background: rgba(255, 0, 0, 0.3);
+  transform: scale(1.05);
 }
 
 .hack-item {
@@ -873,35 +880,85 @@
 
 .glitch-mode .static-rainbow-char {
   display: inline-block;
-  color: #cc99ff !important;
-  text-shadow: 0 0 5px #cc99ff !important;
-  font-weight: bold !important;
+  color: #ff0000;  /* Start with red */
+  text-shadow: 0 0 5px #ff0000;
+  animation: glitchFlash 8s steps(8) infinite;  /* Much slower rotation */
+  position: relative;
 }
 
-.glitch-mode .static-rainbow-char.animate {
-  animation: characterRainbow 2s linear;
+/* Add glitch effect with pseudo-elements */
+.glitch-mode .static-rainbow-char::before,
+.glitch-mode .static-rainbow-char::after {
+  content: attr(data-char);
+  position: absolute;
+  left: 0;
+  opacity: 0.8;
+  animation: glitchOffset 0.3s steps(2) infinite;
+}
+
+.glitch-mode .static-rainbow-char::before {
+  text-shadow: -2px 0 #0ff;
+  animation-delay: 0.1s;
+}
+
+.glitch-mode .static-rainbow-char::after {
+  text-shadow: 2px 0 #f0f;
+  animation-delay: 0.2s;
+}
+
+@keyframes glitchFlash {
+  0%, 100% { 
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
+    transform: skew(0deg);
+  }
+  20% { 
+    color: #ff8000;
+    text-shadow: 0 0 5px #ff8000;
+    transform: skew(2deg);
+  }
+  40% { 
+    color: #ffff00;
+    text-shadow: 0 0 5px #ffff00;
+    transform: skew(-2deg);
+  }
+  60% { 
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    transform: skew(1deg);
+  }
+  80% { 
+    color: #0080ff;
+    text-shadow: 0 0 5px #0080ff;
+    transform: skew(-1deg);
+  }
+}
+
+@keyframes glitchOffset {
+  0%, 100% {
+    clip-path: inset(50% 0 50% 0);
+    transform: translate(-2px);
+  }
+  50% {
+    clip-path: inset(0% 50% 0% 50%);
+    transform: translate(2px);
+  }
 }
 
 /* Update the static rainbow char styles */
 .glitch-mode .instruction-text .static-rainbow-char {
   display: inline-block !important;
-  color: #cc99ff !important;
-  text-shadow: 0 0 5px #cc99ff !important;
-  font-weight: bold !important;
-  margin: 0 1px !important;  /* Add spacing between characters */
+  margin: 0 1px !important;
   position: relative !important;
   z-index: 2 !important;
 }
 
 .glitch-mode .instruction-text .static-rainbow-char.animate {
   animation: characterRainbow 2s linear !important;
-  color: currentColor !important;
-  text-shadow: 0 0 5px currentColor !important;
 }
 
-/* Update the animation to ensure it overrides other styles */
 @keyframes characterRainbow {
-  0%, 100% { 
+  0% { 
     color: #ff0000 !important;
     text-shadow: 0 0 5px #ff0000 !important;
   }
@@ -921,6 +978,10 @@
     color: #0080ff !important;
     text-shadow: 0 0 5px #0080ff !important;
   }
+  100% { 
+    color: #ff0000 !important;
+    text-shadow: 0 0 5px #ff0000 !important;
+  }
 }
 
 /* Remove or update these general styles */
@@ -931,19 +992,40 @@
 /* Add specific styles for glitch level text */
 .glitch-mode .instruction-text .static-rainbow-char {
   display: inline-block !important;
-  color: #ff0000 !important;  /* Start with red */
-  text-shadow: 0 0 5px currentColor !important;
-  font-weight: bold !important;
   margin: 0 1px !important;
   position: relative !important;
   z-index: 2 !important;
 }
 
-/* Override any general glitch mode styles */
 .glitch-mode .instruction-text .static-rainbow-char.animate {
   animation: characterRainbow 2s linear !important;
-  color: currentColor !important;
-  text-shadow: 0 0 5px currentColor !important;
+}
+
+@keyframes characterRainbow {
+  0% { 
+    color: #ff0000 !important;
+    text-shadow: 0 0 5px #ff0000 !important;
+  }
+  20% { 
+    color: #ff8000 !important;
+    text-shadow: 0 0 5px #ff8000 !important;
+  }
+  40% { 
+    color: #ffff00 !important;
+    text-shadow: 0 0 5px #ffff00 !important;
+  }
+  60% { 
+    color: #00ff00 !important;
+    text-shadow: 0 0 5px #00ff00 !important;
+  }
+  80% { 
+    color: #0080ff !important;
+    text-shadow: 0 0 5px #0080ff !important;
+  }
+  100% { 
+    color: #ff0000 !important;
+    text-shadow: 0 0 5px #ff0000 !important;
+  }
 }
 
 /* Keep the animation keyframes */
@@ -967,31 +1049,6 @@
   80% { 
     color: #0080ff !important;
     text-shadow: 0 0 5px #0080ff !important;
-  }
-}
-
-.glitch-mode .instruction-text .static-rainbow-char {
-  display: inline-block !important;
-  color: #cc99ff !important;
-  text-shadow: 0 0 5px #cc99ff !important;
-  font-weight: bold !important;
-  margin: 0 1px !important;
-  position: relative !important;
-  z-index: 2 !important;
-}
-
-.glitch-mode .instruction-text .static-rainbow-char.animate {
-  animation: flashColor 2s linear !important;
-  color: var(--flash-color) !important;
-  text-shadow: 0 0 5px var(--flash-color) !important;
-}
-
-@keyframes flashColor {
-  0%, 100% { 
-    opacity: 1;
-  }
-  50% { 
-    opacity: 0.7;
   }
 }
 
@@ -1160,6 +1217,13 @@
 @media (max-width: 480px) {
   .hack-overlay {
     padding: 10px;
+    width: 90%;  /* Reduce width to add padding */
+    max-width: 360px;  /* Slightly smaller max-width */
+    right: 5%;  /* Center the overlay */
+  }
+
+  .hack-overlay-content {
+    padding-right: 5px;  /* Add some padding for content */
   }
 
   .hack-item {
@@ -1169,11 +1233,13 @@
 
   .hack-info h3 {
     font-size: 14px;
+    word-break: break-word;  /* Allow long words to break */
   }
 
   .hack-info p {
     font-size: 12px;
     margin: 3px 0;
+    word-break: break-word;  /* Allow long words to break */
   }
 
   .buy-button {
@@ -1191,8 +1257,9 @@
   }
 
   .close-button {
-    padding: 5px;
+    padding: 2px 30px;
     font-size: 20px;
+    right: 10px;
   }
 } 
 
@@ -1233,5 +1300,135 @@
   100% {
     transform: scale(1);
     box-shadow: 0 0 10px #b366ff;
+  }
+} 
+
+/* Remove cursor: pointer from all clickable elements */
+.matrix-background,
+.click-area,
+.hack-button,
+.buy-button,
+.close-button,
+.matrix-character:hover {
+  cursor: default !important;
+}
+
+/* Override any hover states */
+.hack-button:hover,
+.buy-button:hover,
+.close-button:hover {
+  cursor: default !important;
+}
+
+/* Keep not-allowed cursor for disabled buttons */
+.buy-button:disabled {
+  cursor: not-allowed !important;
+} 
+
+/* Base style for glitch level text */
+.glitch-mode .instruction-text .static-rainbow-char {
+  display: inline-block;
+  margin: 0 1px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Animation when character is flashing */
+.glitch-mode .instruction-text .static-rainbow-char.animate {
+  animation: characterFlash 2s linear;
+}
+
+@keyframes characterFlash {
+  0% {
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
+  }
+  20% {
+    color: #ff8000;
+    text-shadow: 0 0 5px #ff8000;
+  }
+  40% {
+    color: #ffff00;
+    text-shadow: 0 0 5px #ffff00;
+  }
+  60% {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+  }
+  80% {
+    color: #0080ff;
+    text-shadow: 0 0 5px #0080ff;
+  }
+  100% {
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
+  }
+} 
+
+/* Remove all other rainbow/glitch text styles and keep only these */
+.glitch-mode .static-rainbow-char {
+  display: inline-block;
+  color: #ff0000;  /* Start with red */
+  text-shadow: 0 0 5px #ff0000;
+  animation: glitchFlash 8s steps(8) infinite;  /* Much slower rotation */
+  position: relative;
+}
+
+/* Add glitch effect with pseudo-elements */
+.glitch-mode .static-rainbow-char::before,
+.glitch-mode .static-rainbow-char::after {
+  content: attr(data-char);
+  position: absolute;
+  left: 0;
+  opacity: 0.8;
+  animation: glitchOffset 0.3s steps(2) infinite;
+}
+
+.glitch-mode .static-rainbow-char::before {
+  text-shadow: -2px 0 #0ff;
+  animation-delay: 0.1s;
+}
+
+.glitch-mode .static-rainbow-char::after {
+  text-shadow: 2px 0 #f0f;
+  animation-delay: 0.2s;
+}
+
+@keyframes glitchFlash {
+  0%, 100% { 
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
+    transform: skew(0deg);
+  }
+  20% { 
+    color: #ff8000;
+    text-shadow: 0 0 5px #ff8000;
+    transform: skew(2deg);
+  }
+  40% { 
+    color: #ffff00;
+    text-shadow: 0 0 5px #ffff00;
+    transform: skew(-2deg);
+  }
+  60% { 
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    transform: skew(1deg);
+  }
+  80% { 
+    color: #0080ff;
+    text-shadow: 0 0 5px #0080ff;
+    transform: skew(-1deg);
+  }
+}
+
+@keyframes glitchOffset {
+  0%, 100% {
+    clip-path: inset(50% 0 50% 0);
+    transform: translate(-2px);
+  }
+  50% {
+    clip-path: inset(0% 50% 0% 50%);
+    transform: translate(2px);
   }
 } 

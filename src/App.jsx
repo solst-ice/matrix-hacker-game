@@ -396,13 +396,13 @@ function App() {
                   flash.style.height = '100%'
                   flash.style.background = 'white'
                   flash.style.zIndex = '9999'
-                  flash.style.animation = 'flash 0.5s ease-out forwards'
+                  flash.style.animation = 'flash 1s ease-out forwards'
                   document.body.appendChild(flash)
 
-                  setTimeout(() => {
-                    flash.remove()
+                  // Reload immediately when animation ends
+                  flash.addEventListener('animationend', () => {
                     window.location.reload()
-                  }, 500)
+                  })
                 }, 1000)
                 return
               }
@@ -571,7 +571,7 @@ function App() {
     
     const baseId = Date.now() + Math.random()
     const windowHeight = window.innerHeight
-    const extraDistance = windowHeight * 0.2
+    const extraDistance = windowHeight * 0
     const fallSpeed = windowHeight / 4
 
     const opacityStep = 0.8 / 15
@@ -757,9 +757,9 @@ function App() {
 
     // Add glitch level in glitch mode
     if (isGlitchMode) {
-      const text = "GLITCH  LEVEL:  " + ownedHacks.glitch  // Add extra spaces
-      const chars = text.split('').map((char, i) => 
-        `<span class="static-rainbow-char" data-index="${i}">${char}</span>`
+      const glitchText = "GLITCH LEVEL: " + ownedHacks.glitch
+      const chars = glitchText.split('').map((char, i) => 
+        `<span class="static-rainbow-char" data-char="${char}">${char}</span>`
       ).join('')
       stats.push(chars)
       stats.push('') // Empty line after glitch level
@@ -850,6 +850,7 @@ function App() {
   }
 
   useEffect(() => {
+    // Only load from localStorage if we don't have a glitch level yet
     if (ownedHacks.glitch === 0) {
       const savedGlitchLevel = parseInt(localStorage.getItem('glitchLevel') || '0')
       if (savedGlitchLevel > 0) {
@@ -869,24 +870,26 @@ function App() {
           const startIndex = Math.floor(Math.random() * chars.length)
           const length = Math.floor(Math.random() * 3) + 3
           
-          // Generate a random color for this group
-          const color = getRandomBrightColor()
-          
           for (let i = 0; i < length; i++) {
             const index = (startIndex + i) % chars.length
             const char = chars[index]
-            char.style.setProperty('--flash-color', color)
-            char.classList.add('animate')
-            setTimeout(() => {
-              char.classList.remove('animate')
-            }, 2000)
+            // Remove and re-add the animation to restart it
+            char.style.animation = 'none'
+            char.offsetHeight // Trigger reflow
+            char.style.animation = 'glitchFlash 2s linear'
           }
         }
-      }, 3000)
+      }, 100) // Run more frequently
 
       return () => clearInterval(interval)
     }
   }, [isGlitchMode])
+
+  // Add this function to generate random bright colors for the glitch text
+  const getRandomBrightColor = () => {
+    const hue = Math.floor(Math.random() * 360)
+    return `hsl(${hue}, 100%, 50%)`
+  }
 
   return (
     <>
@@ -969,7 +972,7 @@ function App() {
               onClick={handleHack}
             >
               HACK!
-            </button>
+        </button>
           </div>
         )}
       </div>
