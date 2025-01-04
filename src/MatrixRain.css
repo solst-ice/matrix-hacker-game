@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
 * {
   user-select: none;
   -webkit-user-select: none;
@@ -65,6 +67,10 @@
 .score {
   font-size: 48px;
   margin-bottom: 20px;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px currentColor;
+  font-weight: bold;
 }
 
 .click-area {
@@ -88,6 +94,10 @@
   border-radius: 8px;
   background: rgba(0, 255, 0, 0.1);
   pointer-events: none;
+  width: 300px;
+  min-height: 200px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .critical-text {
@@ -95,6 +105,8 @@
   display: block;
   margin-top: 10px;
   font-size: 0.8em;
+  white-space: pre-line;
+  text-align: center;
 }
 
 .hack-button-container {
@@ -132,7 +144,8 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
   border-left: 2px solid #0f0;
@@ -140,6 +153,8 @@
   color: #0f0;
   font-family: monospace;
   z-index: 2000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .hack-overlay-content {
@@ -221,15 +236,22 @@
   cursor: pointer;
   font-family: monospace;
   transition: all 0.3s ease;
+  text-shadow: 0 0 5px #0f0;
 }
 
 .buy-button:hover:not(:disabled) {
-  background: rgba(0, 255, 0, 0.3);
+  background: rgba(0, 255, 0, 0.4);
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
 
 .buy-button:disabled {
-  opacity: 0.5;
+  opacity: 0.3;
   cursor: not-allowed;
+  background: rgba(128, 128, 128, 0.1);
+  border-color: #444;
+  color: #444;
+  text-shadow: none;
 }
 
 .buy-button.owned {
@@ -468,6 +490,9 @@
 .glitch-mode .instruction-text {
   border-color: #b366ff !important;
   background: rgba(179, 102, 255, 0.1) !important;
+  width: 300px;
+  min-height: 200px;
+  text-align: center;
 }
 
 .glitch-mode .hack-overlay {
@@ -967,5 +992,246 @@
   }
   50% { 
     opacity: 0.7;
+  }
+}
+
+/* Add extra effect for glitch mode */
+.glitch-mode .score {
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 
+    0 0 10px currentColor,
+    2px 2px 0px rgba(255, 0, 255, 0.5),
+    -2px -2px 0px rgba(0, 255, 255, 0.5);
+}
+
+/* Progress bar styles */
+.level-progress {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  width: 50px;
+  height: 8px;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid #0f0;
+  border-radius: 4px;
+  overflow: visible;
+  position: relative;
+  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
+  transform-origin: left center;
+}
+
+.level-progress-fill {
+  height: 100%;
+  background: #0f0;
+  transition: width 0.3s ease;
+}
+
+.level-progress-text {
+  position: absolute;
+  left: calc(100% + 5px);
+  top: 0;
+  transform: translateY(calc(-50% + 4px)); /* Half of progress bar height */
+  font-size: 12px;
+  white-space: nowrap;
+  color: #0f0;
+  line-height: 1;
+  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
+  transform-origin: left center;
+}
+
+/* Glitch mode styles */
+.glitch-mode .level-progress {
+  background: rgba(179, 102, 255, 0.1);
+  border-color: #cc99ff;
+}
+
+.glitch-mode .level-progress-fill {
+  background: #cc99ff;
+}
+
+.glitch-mode .level-progress-text {
+  color: #cc99ff;
+}
+
+/* Update buy button styles */
+.buy-button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: rgba(0, 255, 0, 0.2);
+  border: 1px solid #0f0;
+  color: #0f0;
+  cursor: pointer;
+  font-family: monospace;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 5px #0f0;
+}
+
+.buy-button:hover:not(:disabled) {
+  background: rgba(0, 255, 0, 0.4);
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.buy-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(128, 128, 128, 0.1);
+  border-color: #444;
+  color: #444;
+  text-shadow: none;
+}
+
+/* Glitch mode button styles */
+.glitch-mode .buy-button {
+  border-color: #cc99ff;
+  color: #cc99ff;
+  text-shadow: 0 0 5px #cc99ff;
+  background: rgba(179, 102, 255, 0.2);
+}
+
+.glitch-mode .buy-button:hover:not(:disabled) {
+  background: rgba(179, 102, 255, 0.4);
+  box-shadow: 0 0 10px rgba(179, 102, 255, 0.3);
+}
+
+.glitch-mode .buy-button:disabled {
+  opacity: 0.3;
+  background: rgba(128, 128, 128, 0.1);
+  border-color: #444;
+  color: #444;
+  text-shadow: none;
+}
+
+@keyframes levelExplode {
+  0% {
+    opacity: 0;
+    transform: scale(2) translateY(calc(-50% + 4px));
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2) translateY(calc(-50% + 4px));
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(calc(-50% + 4px));
+    filter: blur(0);
+  }
+}
+
+/* Update progress bar styles */
+.level-progress {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  width: 50px;
+  height: 8px;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid #0f0;
+  border-radius: 4px;
+  overflow: visible;
+  position: relative;
+  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
+  transform-origin: left center;
+}
+
+.level-progress-fill {
+  height: 100%;
+  background: #0f0;
+  transition: width 0.3s ease;
+}
+
+.level-progress-text {
+  position: absolute;
+  left: calc(100% + 5px);
+  top: 0;
+  transform: translateY(calc(-50% + 4px)); /* Half of progress bar height */
+  font-size: 12px;
+  white-space: nowrap;
+  color: #0f0;
+  line-height: 1;
+  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
+  transform-origin: left center;
+}
+
+/* Make hack items more compact on mobile */
+@media (max-width: 480px) {
+  .hack-overlay {
+    padding: 10px;
+  }
+
+  .hack-item {
+    margin: 10px 0;
+    padding: 10px;
+  }
+
+  .hack-info h3 {
+    font-size: 14px;
+  }
+
+  .hack-info p {
+    font-size: 12px;
+    margin: 3px 0;
+  }
+
+  .buy-button {
+    padding: 8px;
+    margin-top: 5px;
+  }
+
+  .level-progress {
+    width: 40px;
+    height: 6px;
+  }
+
+  .level-progress-text {
+    font-size: 10px;
+  }
+
+  .close-button {
+    padding: 5px;
+    font-size: 20px;
+  }
+} 
+
+/* Add flashing animation for the hack button */
+@keyframes hackButtonFlash {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px #f00;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #f00;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px #f00;
+  }
+}
+
+.hack-button.first-time {
+  animation: hackButtonFlash 1s ease-in-out infinite;
+}
+
+/* Update glitch mode version */
+.glitch-mode .hack-button.first-time {
+  animation: hackButtonGlitchFlash 1s ease-in-out infinite;
+}
+
+@keyframes hackButtonGlitchFlash {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px #b366ff;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #b366ff;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px #b366ff;
   }
 } 

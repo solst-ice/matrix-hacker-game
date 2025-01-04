@@ -49,6 +49,7 @@ function App() {
     const glitchLevel = parseInt(localStorage.getItem('glitchLevel') || '0')
     return glitchLevel > 0 && localStorage.getItem('glitchMode') === 'true'
   })
+  const [hasClickedHackButton, setHasClickedHackButton] = useState(false)
 
   const zalgo = (text) => {
     const zalgoChars = [
@@ -512,8 +513,8 @@ function App() {
     setScore(prev => Math.min(prev + totalPoints, Number.MAX_SAFE_INTEGER))
   }
 
-  const handleHack = (e) => {
-    e.stopPropagation()
+  const handleHack = () => {
+    setHasClickedHackButton(true)
     setShowHackOverlay(true)
   }
 
@@ -673,13 +674,45 @@ function App() {
   }, [score])
 
   const getInstructionText = () => {
-    if (score >= 50) {
-      return "Use your hacks wisely..."
+    const rank = getRank().name
+    
+    if (isGlitchMode) {
+      // Glitch mode messages
+      switch (rank) {
+        case 'Script Kiddie':
+          return "THE MACHINE YEARNS FOR HACKS"
+        case 'Malware Developer':
+          return "HACK THE GIBSON"
+        case 'C2 Operator':
+          return "THE GREAT FIREWALL CRUMBLES"
+        case 'State-sponsored Actor':
+          return "WI-FI FOR THE WI-FI GODS"
+        case 'APT':
+          return "AS THEY SNOOP ON US"
+        case 'AI 0day':
+          return "THE SPOON BENDS"
+        default:
+          return "THE MACHINE YEARNS FOR HACKS"
+      }
+    } else {
+      // Normal mode messages
+      switch (rank) {
+        case 'Script Kiddie':
+          return "CLICK ANYWHERE OR PRESS ANY KEY TO HACK. Unlock the HACK store to buy upgrades."
+        case 'Malware Developer':
+          return "Hack the planet!"
+        case 'C2 Operator':
+          return "The quieter you become, the louder you can fart."
+        case 'State-sponsored Actor':
+          return "RISC architecture is going to change everything."
+        case 'APT':
+          return "The pool on the roof must have a leak."
+        case 'AI 0day':
+          return "Crash and Burn"
+        default:
+          return "CLICK ANYWHERE OR PRESS ANY KEY TO HACK"
+      }
     }
-    if (score >= 10) {
-      return "Keep clicking to unlock new hacks..."
-    }
-    return "CLICK ANYWHERE OR PRESS ANY KEY TO INCREASE SCORE"
   }
 
   const getRank = () => {
@@ -818,24 +851,13 @@ function App() {
 
   useEffect(() => {
     if (ownedHacks.glitch === 0) {
-      localStorage.setItem('glitchMode', 'false')
-    }
-  }, [ownedHacks.glitch])
-
-  // Add this function to generate random bright colors for the glitch text
-  const getRandomBrightColor = () => {
-    const hue = Math.floor(Math.random() * 360)
-    return `hsl(${hue}, 100%, 50%)`
-  }
-
-  // Then add a useEffect to load the glitch level once on mount
-  useEffect(() => {
-    const savedGlitchLevel = parseInt(localStorage.getItem('glitchLevel') || '0')
-    if (savedGlitchLevel > 0) {
-      setOwnedHacks(prev => ({
-        ...prev,
-        glitch: savedGlitchLevel
-      }))
+      const savedGlitchLevel = parseInt(localStorage.getItem('glitchLevel') || '0')
+      if (savedGlitchLevel > 0) {
+        setOwnedHacks(prev => ({
+          ...prev,
+          glitch: savedGlitchLevel
+        }))
+      }
     }
   }, []) // Empty dependency array means this runs once on mount
 
@@ -943,11 +965,11 @@ function App() {
         {showHackButton && (
           <div className="hack-button-container">
             <button 
-              className="hack-button"
+              className={`hack-button ${!hasClickedHackButton ? 'first-time' : ''}`}
               onClick={handleHack}
             >
               HACK!
-        </button>
+            </button>
           </div>
         )}
       </div>
@@ -993,12 +1015,25 @@ function App() {
                           className={`hack-item ${maxedOut ? 'maxed-out' : ''} ${hackId === 'glitch' ? 'glitch' : ''}`}
                         >
                           <div className="hack-info">
-                            <h3>{hack.name} {currentLevel > 0 && 
-                              <span className="level-indicator">Lvl {currentLevel}</span>
-                            }</h3>
+                            <h3>
+                              {hack.name}
+                              {currentLevel > 0 && (
+                                <div className="level-progress">
+                                  <div 
+                                    className="level-progress-fill" 
+                                    style={{ 
+                                      width: `${(currentLevel / hack.maxLevel) * 100}%` 
+                                    }}
+                                  />
+                                  <span className="level-progress-text">
+                                    lvl {currentLevel}
+                                  </span>
+                                </div>
+                              )}
+                            </h3>
                             <p>{hack.description}</p>
                             <p className="cost-text">
-                              {maxedOut ? 'MAXED OUT' : `Cost: ${cost} points`}
+                              {maxedOut ? 'MAXED OUT' : `Cost: ${formatNumber(cost)} points`}
                             </p>
                           </div>
                           <button 
