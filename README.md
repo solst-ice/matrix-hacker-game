@@ -61,6 +61,28 @@ This game is deployed using GitHub Pages. To deploy your own instance:
 3. Run `npm run deploy`
 4. Enable GitHub Pages in your repository settings
 
+## Testing
+
+Use this to set the score, for easier testing.
+
+```bash
+// Find the React fiber and set score directly
+const scoreElement = document.querySelector('.score');
+const fiberKey = Object.keys(scoreElement).find(key => key.startsWith('__reactFiber$'));
+if (fiberKey) {
+    const fiber = scoreElement[fiberKey];
+    let current = fiber;
+    while (current) {
+        if (current.memoizedState?.queue?.dispatch) {
+            // Explicitly set to a number
+            current.memoizedState.queue.dispatch(100000000000);
+            break;
+        }
+        current = current.return;
+    }
+}
+```
+
 ## License
 
 MIT

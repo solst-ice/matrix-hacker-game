@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './MatrixRain.css'
 
 function App() {
@@ -28,7 +28,12 @@ function App() {
     spfHardfail: 0,
     lgtmPR: 0,
     downloadRam: 0,
-    glitch: 0
+    flipperZero: 0,
+    rowHammer: 0,
+    glitch: 0,
+    banCpp: 0,
+    enableMfa: 0,
+    ascend: 0
   })
   const [multipliers, setMultipliers] = useState({
     criticalChance: 1,
@@ -37,7 +42,11 @@ function App() {
     critMultiplier: 10,
     hacksPerSecond: 0,
     baseZerodayChance: 5,
-    zerodayChance: 0
+    zerodayChance: 0,
+    zerodayBonus: 0,
+    legendaryChance: 0,
+    legendaryMultiplier: 100,
+    basePoints: 1
   })
   const [zerodays, setZerodays] = useState([])
   const MAX_MATRIX_CHARS = 800
@@ -50,6 +59,8 @@ function App() {
     return glitchLevel > 0 && localStorage.getItem('glitchMode') === 'true'
   })
   const [hasClickedHackButton, setHasClickedHackButton] = useState(false)
+  const [counted0days, setCounted0days] = useState(new Set())
+  const idCounterRef = useRef(0)
 
   const zalgo = (text) => {
     const zalgoChars = [
@@ -76,16 +87,12 @@ function App() {
         name: "Nmap Scanner",
         baseCost: 8,
         maxLevel: 5,
-        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+0.25%</span>, and trail length by <span className="stat-increase">+1</span> at level 5</>,
+        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+1.25%</span></>,
         onBuy: () => {
-          setMultipliers(prev => {
-            const newLevel = ownedHacks.nmapScanner + 1
-            return {
-              ...prev,
-              criticalChance: prev.criticalChance + 0.25,
-              trailLength: prev.trailLength + (newLevel === 5 ? 1 : 0)
-            }
-          })
+          setMultipliers(prev => ({
+            ...prev,
+            criticalChance: prev.criticalChance + 1.25
+          }))
         }
       },
       httpProxy: {
@@ -104,11 +111,11 @@ function App() {
         name: "ASLR Bypass",
         baseCost: 16,
         maxLevel: 5,
-        description: <>Increases {colorText.critical('critical')} multiplier by <span className="stat-increase">+5x</span></>,
+        description: <>Increases {colorText.critical('critical')} multiplier by <span className="stat-increase">+2x</span></>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            critMultiplier: prev.critMultiplier + 5
+            critMultiplier: prev.critMultiplier + 2
           }))
         }
       },
@@ -130,11 +137,11 @@ function App() {
         name: "IDA Pro License",
         baseCost: 64,
         maxLevel: 5,
-        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+0.75%</span></>,
+        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+1.75%</span></>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            criticalChance: prev.criticalChance + 0.75
+            criticalChance: prev.criticalChance + 1.75
           }))
         }
       },
@@ -154,11 +161,11 @@ function App() {
         name: "Unauth RCE",
         baseCost: 256,
         maxLevel: 5,
-        description: <>Adds <span className="stat-increase">+2%</span> chance for {colorText.legendary('LEGENDARY')} hits (100x)</>,
+        description: <>Adds <span className="stat-increase">+1%</span> chance for {colorText.legendary('LEGENDARY')} hits (100x)</>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            legendaryChance: (prev.legendaryChance || 0) + 0.02
+            legendaryChance: (prev.legendaryChance || 0) + 0.01
           }))
         }
       },
@@ -166,11 +173,11 @@ function App() {
         name: "NOP Sled",
         baseCost: 64,
         maxLevel: 5,
-        description: <>Adds <span className="stat-increase">+3%</span> chance to trigger a {colorText.zeroday('0day')}</>,
+        description: <>Adds <span className="stat-increase">+1%</span> chance to trigger a {colorText.zeroday('0day')}</>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            zerodayChance: (prev.zerodayChance || 0) + 3
+            zerodayChance: (prev.zerodayChance || 0) + 1
           }))
         }
       }
@@ -178,13 +185,13 @@ function App() {
     'C2 Operator': {
       steganography: {
         name: "Steganography C2 Comms",
-        baseCost: 512,
+        baseCost: 1024,
         maxLevel: 5,
-        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+2%</span> and multiplier by <span className="stat-increase">+2x</span></>,
+        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+1%</span> and multiplier by <span className="stat-increase">+2x</span></>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            criticalChance: prev.criticalChance + 2,
+            criticalChance: prev.criticalChance + 1,
             critMultiplier: prev.critMultiplier + 2
           }))
         }
@@ -203,7 +210,7 @@ function App() {
       },
       eternalBlue: {
         name: "EternalBlue - MS17-010",
-        baseCost: 1024,
+        baseCost: 2048,
         maxLevel: 5,
         description: <>Adds <span className="stat-increase">+1</span> hack per second</>,
         onBuy: () => {
@@ -215,14 +222,14 @@ function App() {
       },
       chromeBackdoor: {
         name: "Backdoor Chrome Extension",
-        baseCost: 512,
+        baseCost: 4096,
         maxLevel: 5,
-        description: <>Adds <span className="stat-increase">+2%</span> {colorText.legendary('legendary')} chance and increases {colorText.legendary('legendary')} multiplier by <span className="stat-increase">+10x</span></>,
+        description: <>Adds <span className="stat-increase">+1%</span> {colorText.legendary('legendary')} chance and increases {colorText.legendary('legendary')} multiplier by <span className="stat-increase">+5x</span></>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            legendaryChance: (prev.legendaryChance || 0) + 0.02,
-            legendaryMultiplier: (prev.legendaryMultiplier || 100) + 10
+            legendaryChance: (prev.legendaryChance || 0) + 0.01,
+            legendaryMultiplier: (prev.legendaryMultiplier || 100) + 5
           }))
         }
       }
@@ -232,12 +239,12 @@ function App() {
         name: "Stuxnet on a USB",
         baseCost: 2048,
         maxLevel: 5,
-        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+2.8%</span> and multiplier by <span className="stat-increase">+3x</span></>,
+        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+2.8%</span> and multiplier by <span className="stat-increase">+2x</span></>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
             criticalChance: prev.criticalChance + 2.8,
-            critMultiplier: prev.critMultiplier + 3
+            critMultiplier: prev.critMultiplier + 2
           }))
         }
       },
@@ -245,16 +252,12 @@ function App() {
         name: "XSS Alert(1); Pop-up",
         baseCost: 4096,
         maxLevel: 5,
-        description: <>Adds <span className="stat-increase">+3,000</span> points to {colorText.zeroday('0day')} rewards, and trail length by <span className="stat-increase">+1</span> at level 5</>,
+        description: <>Adds <span className="stat-increase">+3,000</span> points to {colorText.zeroday('0day')} rewards</>,
         onBuy: () => {
-          setMultipliers(prev => {
-            const newLevel = ownedHacks.xssPopup + 1
-            return {
-              ...prev,
-              zerodayBonus: (prev.zerodayBonus || 0) + 3000,
-              trailLength: prev.trailLength + (newLevel === 5 ? 1 : 0)
-            }
-          })
+          setMultipliers(prev => ({
+            ...prev,
+            zerodayBonus: (prev.zerodayBonus || 0) + 3000
+          }))
         }
       },
       bgpHijack: {
@@ -271,13 +274,13 @@ function App() {
       },
       phishClownflare: {
         name: "Phish Clownflare Employee",
-        baseCost: 2048,
+        baseCost: 16384,
         maxLevel: 5,
-        description: <>Adds <span className="stat-increase">+2%</span> {colorText.legendary('legendary')} chance and <span className="stat-increase">+10x</span> {colorText.legendary('legendary')} multiplier</>,
+        description: <>Adds <span className="stat-increase">+1%</span> {colorText.legendary('legendary')} chance and <span className="stat-increase">+10x</span> {colorText.legendary('legendary')} multiplier</>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            legendaryChance: (prev.legendaryChance || 0) + 0.02,
+            legendaryChance: (prev.legendaryChance || 0) + 0.01,
             legendaryMultiplier: (prev.legendaryMultiplier || 100) + 10
           }))
         }
@@ -286,19 +289,19 @@ function App() {
     'APT': {
       aflFuzz: {
         name: "Fuzz with AFL++",
-        baseCost: 8192,
+        baseCost: 32768,
         maxLevel: 5,
-        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+5%</span></>,
+        description: <>Increases {colorText.critical('critical')} chance by <span className="stat-increase">+3%</span></>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            criticalChance: prev.criticalChance + 5
+            criticalChance: prev.criticalChance + 3
           }))
         }
       },
       unpropDNS: {
         name: "Unpropagate DNS",
-        baseCost: 8192,
+        baseCost: 16384,
         maxLevel: 5,
         description: <>Increases double click chance by <span className="stat-increase">+3%</span></>,
         onBuy: () => {
@@ -325,37 +328,58 @@ function App() {
         name: "LGTM a GitHub PR",
         baseCost: 32768,
         maxLevel: 5,
-        description: <>Increases hacks per second by <span className="stat-increase">+2</span>, and trail length by <span className="stat-increase">+1</span> at level 5</>,
+        description: <>Increases hacks per second by <span className="stat-increase">+2</span></>,
         onBuy: () => {
-          setMultipliers(prev => {
-            const newLevel = ownedHacks.lgtmPR + 1
-            return {
-              ...prev,
-              hacksPerSecond: prev.hacksPerSecond + 2,
-              trailLength: prev.trailLength + (newLevel === 5 ? 1 : 0)
-            }
-          })
+          setMultipliers(prev => ({
+            ...prev,
+            hacksPerSecond: prev.hacksPerSecond + 2
+          }))
         }
       }
     },
     'AI 0day': {
       downloadRam: {
         name: "Download more RAM",
-        baseCost: 32768,
+        baseCost: 65536,
         maxLevel: 5,
-        description: <>Increases {colorText.zeroday('0day')} chance by <span className="stat-increase">+2%</span> and reward by <span className="stat-increase">+5,000</span> points</>,
+        description: <>Increases {colorText.zeroday('0day')} chance by <span className="stat-increase">+4%</span> and reward by <span className="stat-increase">+5,000</span> points</>,
         onBuy: () => {
           setMultipliers(prev => ({
             ...prev,
-            zerodayChance: (prev.zerodayChance || 0) + 2,
+            zerodayChance: (prev.zerodayChance || 0) + 4,
             zerodayBonus: (prev.zerodayBonus || 0) + 5000
+          }))
+        }
+      },
+      flipperZero: {
+        name: "Overclock Flipper Zero",
+        baseCost: 131072,
+        maxLevel: 5,
+        description: <>Increases {colorText.zeroday('0day')} reward by <span className="stat-increase">+191,800</span> points</>,
+        onBuy: () => {
+          setMultipliers(prev => ({
+            ...prev,
+            zerodayBonus: (prev.zerodayBonus || 0) + 191800
+          }))
+        }
+      },
+      rowHammer: {
+        name: "ROWHAMMER",
+        baseCost: 524288,
+        maxLevel: 5,
+        description: <>Increases {colorText.critical('critical')} multiplier by <span className="stat-increase">+60x</span> and {colorText.legendary('legendary')} multiplier by <span className="stat-increase">+100x</span></>,
+        onBuy: () => {
+          setMultipliers(prev => ({
+            ...prev,
+            critMultiplier: prev.critMultiplier + 60,
+            legendaryMultiplier: (prev.legendaryMultiplier || 100) + 100
           }))
         }
       },
       glitch: {
         name: zalgo("GLITCH"),
         baseCost: 2097152,
-        maxLevel: 999,
+        maxLevel: 20,
         description: <span style={{ color: '#800080' }}>{ 
           ownedHacks.glitch === 0 ? 
           zalgo("????????????????") : 
@@ -430,35 +454,140 @@ function App() {
             requestAnimationFrame(addBatch)
           }, 100) // Add 100ms delay
         }
+      },
+      banCpp: {
+        name: zalgo("BAN C++"),
+        baseCost: 2097152,
+        maxLevel: 5,
+        description: <>Adds <span className="stat-increase">+4%</span> {colorText.legendary('legendary')} chance, increases {colorText.legendary('legendary')} multiplier by <span className="stat-increase">+100x</span>, and adds <span className="stat-increase">+9,800,000</span> to {colorText.zeroday('0day')} rewards</>,
+        onBuy: () => {
+          setMultipliers(prev => ({
+            ...prev,
+            legendaryChance: (prev.legendaryChance || 0) + 0.04,
+            legendaryMultiplier: (prev.legendaryMultiplier || 100) + 100,
+            zerodayBonus: (prev.zerodayBonus || 0) + 9800000
+          }))
+        }
+      },
+      enableMfa: {
+        name: zalgo("Enable MFA"),
+        baseCost: 4194304,
+        maxLevel: 5,
+        description: <>Adds <span className="stat-increase">+13%</span> {colorText.legendary('legendary')} chance, increases {colorText.critical('critical')} and {colorText.legendary('legendary')} multipliers by <span className="stat-increase">+100x</span>, adds <span className="stat-increase">+14%</span> {colorText.zeroday('0day')} chance and <span className="stat-increase">+50,000,000</span> to {colorText.zeroday('0day')} rewards</>,
+        onBuy: () => {
+          setMultipliers(prev => ({
+            ...prev,
+            legendaryChance: (prev.legendaryChance || 0) + 0.13,
+            critMultiplier: prev.critMultiplier + 100,
+            legendaryMultiplier: (prev.legendaryMultiplier || 100) + 100,
+            zerodayChance: (prev.zerodayChance || 0) + 14,
+            zerodayBonus: (prev.zerodayBonus || 0) + 50000000
+          }))
+        }
+      },
+      ascend: {
+        name: "Ascend into Singularity",
+        baseCost: 1,
+        maxLevel: 1,
+        description: <>Ask the final question.</>,
+        onBuy: () => {
+          // Disable all UI interaction
+          setIsUIDisabled(true)
+          
+          // Clear all intervals to stop effects
+          const highestId = window.setTimeout(() => {}, 0)
+          for (let i = 0; i <= highestId; i++) {
+            window.clearTimeout(i)
+            window.clearInterval(i)
+          }
+          
+          // Remove all column flash elements
+          const flashes = document.querySelectorAll('.column-flash')
+          flashes.forEach(flash => flash.remove())
+          
+          // Fade out all UI elements immediately
+          const gameContainer = document.querySelector('.game-container')
+          const matrixBackground = document.querySelector('.matrix-background')
+          const hackOverlay = document.querySelector('.hack-overlay')
+          
+          if (gameContainer) gameContainer.style.animation = 'fadeOut 2s forwards'
+          if (hackOverlay) hackOverlay.style.animation = 'fadeOut 2s forwards'
+          if (matrixBackground) matrixBackground.style.animation = 'fadeOut 2s forwards'
+          
+          // Start the white fade after UI elements are gone
+          setTimeout(() => {
+            document.body.style.animation = 'ascendToWhite 5s forwards'
+            
+            // Clear all game state
+            setShowHackButton(false)
+            setShowHackOverlay(false)
+            setMatrixChars([])
+            
+            // Add the final message
+            setTimeout(() => {
+              const message = document.createElement('div')
+              message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-family: 'Times New Roman', serif;
+                font-size: 24px;
+                color: #000;
+                text-align: center;
+                opacity: 0;
+                animation: fadeInMessage 2s forwards;
+              `
+              message.textContent = 'You have ascended. Let there be light.'
+              document.body.appendChild(message)
+            }, 3000)
+          }, 2000)
+        }
       }
     }
   }
 
   const matrixCharacters = 'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ012345789Z'
 
-  const getTrailLength = () => Math.max(1, Math.floor(2 * multipliers.trailLength))
+  const getTrailLength = () => {
+    const ranks = ['Script Kiddie', 'Malware Developer', 'C2 Operator', 'State-sponsored Actor', 'APT', 'AI 0day']
+    const currentRank = getRank().name
+    const rankIndex = ranks.indexOf(currentRank)
+    return rankIndex + 1  // Trail length starts at 1 for Script Kiddie and increases by 1 per rank
+  }
+
   const getCriticalChance = () => 0.01 * multipliers.criticalChance
   const getDoubleClickChance = () => 0.01 * multipliers.doubleClickChance
-  const getCritMultiplier = () => multipliers.critMultiplier
+  const getCritMultiplier = () => {
+    return multipliers.critMultiplier || 10
+  }
 
-  const addMatrixCharacter = (clickX, isLegendary = false) => {
+  const getLegendaryMultiplier = () => {
+    return multipliers.legendaryMultiplier || 100
+  }
+
+  const addMatrixCharacter = (clickX = null, isLegendary = false, isCritical = false) => {
     const x = clickX ? 
       clickX - 100 + (Math.random() * 200) : 
       Math.random() * window.innerWidth
     
-    const baseId = Date.now() + Math.random()
-    const isCritical = !isLegendary && Math.random() < getCriticalChance()
-
+    // Use ref for counter to ensure uniqueness
+    const baseId = `${Date.now()}-${idCounterRef.current++}`
+    
     // Calculate time needed for each character to reach past bottom
     const windowHeight = window.innerHeight
-    const extraDistance = windowHeight * 0.2 // 20% extra distance to go past bottom
+    const extraDistance = windowHeight * 0.2 // 20% extra distance
     const fallSpeed = windowHeight / 2 // pixels per second
-
-    const trail = Array.from({ length: getTrailLength() }, (_, index) => ({
+    
+    // Get trail length based on rank - same for all interaction types
+    const trailLength = getTrailLength()
+    
+    // Create trail of characters
+    const trail = Array.from({ length: trailLength }, (_, index) => ({
       char: matrixCharacters[Math.floor(Math.random() * matrixCharacters.length)],
       x,
       y: -20 - (index * 20),
-      id: baseId + index,
+      id: `${baseId}-${index}-${Math.random()}`,  // Add extra randomness
       opacity: 1 - (index * 0.2),
       isCritical,
       isLegendary,
@@ -479,33 +608,38 @@ function App() {
     return isCritical || isLegendary
   }
 
-  const handleInteraction = (e) => {
+  const handleInteraction = (event) => {
     // Capture current values to ensure consistency
     const currentDoubleChance = getDoubleClickChance()
-    const clickX = e.clientX // Get X coordinate of click
-    const basePoints = multipliers.basePoints || 1 // Add this line
-
-    // Function to process a single interaction
+    const clickX = event?.clientX ?? Math.random() * window.innerWidth
+    
+    // Function to process a single interaction - same for all types
     const processInteraction = () => {
+      let points = multipliers.basePoints || 1
+
       // Check for legendary first (if available)
       if (multipliers.legendaryChance && Math.random() < multipliers.legendaryChance) {
-        const isLegendary = true
-        addMatrixCharacter(clickX, isLegendary)
-        return (multipliers.legendaryMultiplier || 100) * basePoints // Multiply by base points
+        addMatrixCharacter(clickX, true) // true = isLegendary
+        points *= getLegendaryMultiplier() // Apply legendary multiplier
       }
       
-      // Then check for critical
-      const isCritical = e.clientX ? 
-        addMatrixCharacter(clickX) : 
-        addMatrixCharacter()
+      // Then check for critical - this should still apply even on legendary hits
+      const isCritical = Math.random() < getCriticalChance()
+      if (isCritical) {
+        points *= getCritMultiplier() // Apply critical multiplier
+        addMatrixCharacter(clickX, false, isCritical)
+      } else if (!multipliers.legendaryChance || Math.random() >= multipliers.legendaryChance) {
+        // Only add normal character if not legendary or critical
+        addMatrixCharacter(clickX, false, false)
+      }
       
-      return (isCritical ? getCritMultiplier() : 1) * basePoints // Multiply by base points
+      return points
     }
 
     // Always do at least one interaction
     let totalPoints = processInteraction()
     
-    // Check for double click
+    // Check for double click - applies to both manual and auto
     if (currentDoubleChance >= 1 || Math.random() <= currentDoubleChance) {
       totalPoints += processInteraction()
     }
@@ -520,14 +654,19 @@ function App() {
 
   const getHackCost = (hackId) => {
     // Find the hack in any rank group
+    let hack = null
     for (const rankHacks of Object.values(RANK_HACKS)) {
       if (rankHacks[hackId]) {
-        const hack = rankHacks[hackId]
-        const level = ownedHacks[hackId]
-        return hack.baseCost * Math.pow(2, level)
+        hack = rankHacks[hackId]
+        break
       }
     }
-    return 0
+
+    if (!hack) return 0
+
+    const level = ownedHacks[hackId] || 0
+    const multiplier = Math.pow(2, level)
+    return Math.floor(hack.baseCost * multiplier)
   }
 
   const handleBuyHack = (hackId) => {
@@ -759,7 +898,7 @@ function App() {
     if (isGlitchMode) {
       const glitchText = "GLITCH LEVEL: " + ownedHacks.glitch
       const chars = glitchText.split('').map((char, i) => 
-        `<span class="static-rainbow-char" data-char="${char}">${char}</span>`
+        `<span class="static-rainbow-char" style="animation: scoreGlitch16Colors 4s linear infinite !important;" data-char="${char}">${char}</span>`
       ).join('')
       stats.push(chars)
       stats.push('') // Empty line after glitch level
@@ -820,13 +959,43 @@ function App() {
     return () => clearInterval(interval)
   }, [multipliers.zerodayChance, multipliers.baseZerodayChance])
 
-  // Add periodic cleanup effect
+  // Effect for counting 0days
+  useEffect(() => {
+    const count0days = setInterval(() => {
+      const now = Date.now()
+      setMatrixChars(prev => {
+        prev.forEach(char => {
+          if (char.isZeroday && !counted0days.has(char.id)) {
+            const isFirstInTrail = !prev.some(other => 
+              other.isZeroday && 
+              Math.abs(other.x - char.x) < 5 && 
+              other.y < char.y
+            )
+
+            if (isFirstInTrail && now - char.startTime >= char.duration) {
+              const zerodayReward = 1000 + (multipliers.zerodayBonus || 0)
+              //console.log(`0day counted! Points: ${zerodayReward.toLocaleString()}`)
+              setScore(prevScore => Math.min(prevScore + zerodayReward, Number.MAX_SAFE_INTEGER))
+              setCounted0days(prev => new Set([...prev, char.id]))
+            }
+          }
+        })
+        return prev
+      })
+    }, 100)
+
+    return () => clearInterval(count0days)
+  }, [multipliers.zerodayBonus, counted0days])
+
+  // Separate cleanup effect for non-0day characters
   useEffect(() => {
     const cleanup = setInterval(() => {
       const now = Date.now()
       setMatrixChars(prev => 
-        prev.filter(char => now - char.startTime < char.duration)
-          .slice(-MAX_MATRIX_CHARS)
+        prev.filter(char => 
+          char.isZeroday || // Keep all 0days
+          now - char.startTime < char.duration
+        ).slice(-MAX_MATRIX_CHARS)
       )
     }, 500)
 
@@ -891,9 +1060,34 @@ function App() {
     return `hsl(${hue}, 100%, 50%)`
   }
 
+  // Add this effect near your other useEffects
+  useEffect(() => {
+    // Only run in glitch mode level 10+
+    if (isGlitchMode && ownedHacks.glitch >= 10) {
+      const interval = setInterval(() => {
+        const x = Math.random() * window.innerWidth
+        const color = `hsl(${Math.random() * 360}, 100%, 50%)`
+        
+        const flash = document.createElement('div')
+        flash.className = 'column-flash glitch-10'
+        flash.style.left = `${x}px`
+        flash.style.background = `linear-gradient(transparent, ${color}, transparent)`
+        document.body.appendChild(flash)
+
+        // Remove the flash element after animation completes
+        flash.addEventListener('animationend', () => {
+          flash.remove()
+        })
+      }, ownedHacks.glitch >= 18 ? 1667 : 5000) // 3x more frequent at level 18+
+
+      return () => clearInterval(interval)
+    }
+  }, [isGlitchMode, ownedHacks.glitch])
+
   return (
     <>
-      <div className={`matrix-background ${isGlitchMode ? 'glitch-mode' : ''}`}>
+      <div className={`matrix-background ${isGlitchMode ? 'glitch-mode' : ''}`}
+           data-glitch-level={isGlitchMode && ownedHacks.glitch >= 16 ? "16" : undefined}>
         {matrixChars.map(({ char, x, y, id, opacity, isCritical, isExplosion, isZeroday, isLegendary, style }) => (
           <span
             key={id}
@@ -930,10 +1124,21 @@ function App() {
       </div>
       <div className={`game-container ${isGlitchMode ? 'glitch-mode' : ''}`} 
            style={{ pointerEvents: isUIDisabled ? 'none' : 'auto' }}>
-        <div className="score">
-          {isGlitchMode ? zalgo(formatNumber(score)) : formatNumber(score)}
+        <div className="score" data-glitch-level={
+          isGlitchMode && ownedHacks.glitch >= 16 ? "16" : 
+          isGlitchMode && ownedHacks.glitch >= 10 ? "10" : 
+          undefined
+        }>
+          {isGlitchMode && (ownedHacks.glitch >= 10) ? (
+            formatNumber(score).split('').map((char, i) => (
+              <span key={i} className="static-rainbow-char" data-char={zalgo(char)}>{zalgo(char)}</span>
+            ))
+          ) : (
+            isGlitchMode ? zalgo(formatNumber(score)) : formatNumber(score)
+          )}
         </div>
-        <div className="instruction-text">
+        <div className="instruction-text" 
+             data-glitch-level={isGlitchMode && ownedHacks.glitch >= 10 ? "10" : undefined}>
           {isGlitchMode ? (
             <>
               {zalgo(getInstructionText())}
@@ -969,6 +1174,11 @@ function App() {
           <div className="hack-button-container">
             <button 
               className={`hack-button ${!hasClickedHackButton ? 'first-time' : ''}`}
+              data-glitch-level={
+                isGlitchMode && ownedHacks.glitch >= 18 ? "18" : 
+                isGlitchMode && ownedHacks.glitch >= 10 ? "10" : 
+                undefined
+              }
               onClick={handleHack}
             >
               HACK!
@@ -988,7 +1198,7 @@ function App() {
                 return ranks.indexOf(rank) <= ranks.indexOf(currentRank)
               })
               .map(([rank, hacks]) => {
-                // Check if all hacks in this rank are hidden
+                // Check if all hacks in this rank group are hidden
                 const allHacksHidden = Object.keys(hacks).every(hackId => 
                   // Don't hide the glitch hack even in glitch mode
                   hackId !== 'glitch' && hiddenHacks.includes(hackId)
@@ -1012,13 +1222,49 @@ function App() {
                       // Don't hide glitch hack in glitch mode
                       if (hiddenHacks.includes(hackId) && hackId !== 'glitch') return null
 
+                      // Hide Flipper Zero unless glitch level >= 4 and rank is AI 0day
+                      if (hackId === 'flipperZero' && (ownedHacks.glitch < 4 || getRank().name !== 'AI 0day')) {
+                        return null
+                      }
+
+                      // Hide ROWHAMMER unless glitch level >= 6 and rank is AI 0day
+                      if (hackId === 'rowHammer' && (ownedHacks.glitch < 6 || getRank().name !== 'AI 0day')) {
+                        return null
+                      }
+
+                      // Hide BAN C++ unless glitch level >= 10 and rank is AI 0day
+                      if (hackId === 'banCpp' && (ownedHacks.glitch < 10 || getRank().name !== 'AI 0day')) {
+                        return null
+                      }
+
+                      // Hide Enable MFA unless glitch level >= 16 and rank is AI 0day
+                      if (hackId === 'enableMfa' && (ownedHacks.glitch < 16 || getRank().name !== 'AI 0day')) {
+                        return null
+                      }
+
+                      // Hide all other hacks when glitch level >= 18
+                      if (ownedHacks.glitch >= 18 && getRank().name === 'AI 0day') {
+                        if (hackId !== 'ascend') {
+                          return null
+                        }
+                      }
+
+                      // Hide ascend unless glitch level >= 18 and rank is AI 0day
+                      if (hackId === 'ascend' && (ownedHacks.glitch < 18 || getRank().name !== 'AI 0day')) {
+                        return null
+                      }
+
                       return (
                         <div 
                           key={hackId} 
-                          className={`hack-item ${maxedOut ? 'maxed-out' : ''} ${hackId === 'glitch' ? 'glitch' : ''}`}
+                          className={`hack-item ${maxedOut ? 'maxed-out' : ''} ${
+                            hackId === 'glitch' ? 'glitch' : 
+                            hackId === 'flipperZero' || hackId === 'rowHammer' ? 'flipper-zero' : ''
+                          }`}
+                          data-hack-id={hackId}
                         >
                           <div className="hack-info">
-                            <h3>
+                            <h3 data-text={hack.name}>
                               {hack.name}
                               {currentLevel > 0 && (
                                 <div className="level-progress">
@@ -1034,8 +1280,8 @@ function App() {
                                 </div>
                               )}
                             </h3>
-                            <p>{hack.description}</p>
-                            <p className="cost-text">
+                            <p data-text={hack.description}>{hack.description}</p>
+                            <p className="cost-text" data-text={maxedOut ? 'MAXED OUT' : `Cost: ${formatNumber(cost)} points`}>
                               {maxedOut ? 'MAXED OUT' : `Cost: ${formatNumber(cost)} points`}
                             </p>
                           </div>

@@ -780,655 +780,585 @@
   animation: fall 2s linear forwards, randomHue 0.5s linear infinite !important;
 }
 
-@keyframes rainbowText {
-  0% { 
-    color: #ff0000 !important; 
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
-  17% { 
-    color: #ff8000 !important; 
-    text-shadow: 0 0 5px #ff8000 !important;
-  }
-  33% { 
-    color: #ffff00 !important; 
-    text-shadow: 0 0 5px #ffff00 !important;
-  }
-  50% { 
-    color: #00ff00 !important; 
-    text-shadow: 0 0 5px #00ff00 !important;
-  }
-  67% { 
-    color: #00ffff !important; 
-    text-shadow: 0 0 5px #00ffff !important;
-  }
-  83% { 
-    color: #0080ff !important; 
-    text-shadow: 0 0 5px #0080ff !important;
-  }
-  100% { 
-    color: #ff0000 !important; 
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
+/* Update glitch level 16+ score styling */
+.score[data-glitch-level="16"] {
+  animation: scoreGlitchFlash 3s ease-in-out infinite !important;
 }
 
-.glitch-mode .glitch-level {
-  animation: rainbowText 2s linear infinite;
-  font-weight: bold;
-}
-
-.glitch-mode .instruction-text .glitch-level {
-  animation: rainbowText 2s linear infinite;
-  font-weight: bold;
-  display: inline-block;
-}
-
-.glitch-mode .instruction-text .rainbow-text {
-  animation: rainbowText 2s linear infinite !important;
-  font-weight: bold !important;
-  display: inline-block !important;
-}
-
-/* Remove the old rainbow animation */
-.glitch-mode .rainbow-scroll {
-  color: hsl(var(--random-hue, 280), 100%, 50%) !important;
-  text-shadow: 0 0 5px currentColor !important;
-  animation: randomHue 0.5s linear infinite !important;
-  font-weight: bold !important;
-  display: inline-block !important;
-}
-
-/* Keep the existing randomHue animation */
-@keyframes randomHue {
-  to {
-    --random-hue: calc(360 * var(--random, 0));
-  }
-}
-
-/* Add this new class for static rainbow text */
-.glitch-mode .static-rainbow {
-  color: hsl(var(--random-hue, 280), 100%, 50%) !important;
-  text-shadow: 0 0 5px currentColor !important;
-  animation: randomHue 0.5s linear infinite !important;
-  font-weight: bold !important;
-  display: inline-block !important;
-  position: static !important;  /* Prevent absolute positioning */
-  transform: none !important;  /* Prevent any transforms */
-}
-
-@keyframes characterRainbow {
-  0%, 100% { 
-    color: #ff0000 !important;
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
-  20% { 
-    color: #ff8000 !important;
-    text-shadow: 0 0 5px #ff8000 !important;
-  }
-  40% { 
-    color: #ffff00 !important;
-    text-shadow: 0 0 5px #ffff00 !important;
-  }
-  60% { 
-    color: #00ff00 !important;
-    text-shadow: 0 0 5px #00ff00 !important;
-  }
-  80% { 
-    color: #0080ff !important;
-    text-shadow: 0 0 5px #0080ff !important;
-  }
-}
-
-.glitch-mode .static-rainbow-char {
-  display: inline-block;
-  color: #ff0000;  /* Start with red */
-  text-shadow: 0 0 5px #ff0000;
-  animation: glitchFlash 8s steps(8) infinite;  /* Much slower rotation */
+.score[data-glitch-level="16"] .static-rainbow-char {
+  animation: scoreShake 0.3s steps(2) infinite !important;
   position: relative;
+  display: inline-block;
 }
 
-/* Add glitch effect with pseudo-elements */
-.glitch-mode .static-rainbow-char::before,
-.glitch-mode .static-rainbow-char::after {
+.score[data-glitch-level="16"] .static-rainbow-char::before,
+.score[data-glitch-level="16"] .static-rainbow-char::after {
   content: attr(data-char);
   position: absolute;
   left: 0;
   opacity: 0.8;
-  animation: glitchOffset 0.3s steps(2) infinite;
+  animation: scoreGlitchOffset 0.3s steps(2) infinite;
 }
 
-.glitch-mode .static-rainbow-char::before {
-  text-shadow: -2px 0 #0ff;
+.score[data-glitch-level="16"] .static-rainbow-char::before {
+  text-shadow: -4px 0 #0ff;
   animation-delay: 0.1s;
 }
 
-.glitch-mode .static-rainbow-char::after {
-  text-shadow: 2px 0 #f0f;
+.score[data-glitch-level="16"] .static-rainbow-char::after {
+  text-shadow: 4px 0 #f0f;
   animation-delay: 0.2s;
 }
 
-@keyframes glitchFlash {
-  0%, 100% { 
+@keyframes scoreGlitch16Colors {
+  0%, 25% { 
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+  }
+  35%, 60% { 
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+  }
+  70%, 95% { 
     color: #ff0000;
-    text-shadow: 0 0 5px #ff0000;
-    transform: skew(0deg);
+    text-shadow: 0 0 10px #ff0000;
   }
-  20% { 
-    color: #ff8000;
-    text-shadow: 0 0 5px #ff8000;
-    transform: skew(2deg);
-  }
-  40% { 
-    color: #ffff00;
-    text-shadow: 0 0 5px #ffff00;
-    transform: skew(-2deg);
-  }
-  60% { 
-    color: #00ff00;
-    text-shadow: 0 0 5px #00ff00;
-    transform: skew(1deg);
-  }
-  80% { 
-    color: #0080ff;
-    text-shadow: 0 0 5px #0080ff;
-    transform: skew(-1deg);
+  100% { 
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
   }
 }
 
-@keyframes glitchOffset {
+@keyframes scoreShake {
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(-2px, 2px); }
+  50% { transform: translate(2px, -2px); }
+  75% { transform: translate(-2px, -2px); }
+}
+
+@keyframes scoreGlitchOffset {
   0%, 100% {
     clip-path: inset(50% 0 50% 0);
-    transform: translate(-2px);
+    transform: translate(-4px);
   }
   50% {
     clip-path: inset(0% 50% 0% 50%);
-    transform: translate(2px);
+    transform: translate(4px);
   }
+} 
+
+/* Glitch 10+ hack button styling - add at the end of the file */
+.hack-button[data-glitch-level="10"] {
+  animation: hackButtonShake 5s infinite !important;
+  border-color: rgba(255, 0, 255, 0.5) !important;
+  background: rgba(255, 0, 255, 0.2) !important;
+  color: #ff00ff !important;
+  text-shadow: 0 0 5px currentColor !important;
 }
 
-/* Update the static rainbow char styles */
-.glitch-mode .instruction-text .static-rainbow-char {
-  display: inline-block !important;
-  margin: 0 1px !important;
-  position: relative !important;
-  z-index: 2 !important;
+@keyframes hackButtonShake {
+  0%, 90% { 
+    transform: translate(0, 0) rotate(0deg);
+  }
+  91% { 
+    transform: translate(-2px, 2px) rotate(-2deg);
+  }
+  92% { 
+    transform: translate(2px, -2px) rotate(2deg);
+  }
+  93% { 
+    transform: translate(-2px, -2px) rotate(-1deg);
+  }
+  94% { 
+    transform: translate(2px, 2px) rotate(1deg);
+  }
+  95% { 
+    transform: translate(-2px, 2px) rotate(-2deg);
+  }
+  96% { 
+    transform: translate(2px, -2px) rotate(2deg);
+  }
+  97% { 
+    transform: translate(-2px, -2px) rotate(-1deg);
+  }
+  98% { 
+    transform: translate(2px, 2px) rotate(1deg);
+  }
+  99%, 100% { 
+    transform: translate(0, 0) rotate(0deg);
+  }
+} 
+
+/* Update column flash for glitch 10+ */
+.column-flash.glitch-10 {
+  position: fixed;
+  top: 0;
+  width: 100px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1500;
+  animation: glitch10ColumnFlash 0.5s ease-out forwards;
+  mix-blend-mode: screen;
 }
 
-.glitch-mode .instruction-text .static-rainbow-char.animate {
-  animation: characterRainbow 2s linear !important;
+@keyframes glitch10ColumnFlash {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+} 
+
+/* Add glitch 10+ styling for BAN C++ item */
+.hack-item[data-hack-id="banCpp"] {
+  animation: scoreGlitchFlash 3s ease-in-out infinite !important;
+  border-color: rgba(255, 0, 255, 0.5) !important;
+  background: rgba(255, 0, 255, 0.2) !important;
 }
 
-@keyframes characterRainbow {
-  0% { 
-    color: #ff0000 !important;
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
-  20% { 
-    color: #ff8000 !important;
-    text-shadow: 0 0 5px #ff8000 !important;
-  }
-  40% { 
-    color: #ffff00 !important;
-    text-shadow: 0 0 5px #ffff00 !important;
-  }
-  60% { 
-    color: #00ff00 !important;
-    text-shadow: 0 0 5px #00ff00 !important;
-  }
-  80% { 
-    color: #0080ff !important;
-    text-shadow: 0 0 5px #0080ff !important;
-  }
-  100% { 
-    color: #ff0000 !important;
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
-}
-
-/* Remove or update these general styles */
-.glitch-mode .instruction-text .critical-text {
-  color: #cc99ff !important;  /* Keep this for other stats */
-}
-
-/* Add specific styles for glitch level text */
-.glitch-mode .instruction-text .static-rainbow-char {
-  display: inline-block !important;
-  margin: 0 1px !important;
-  position: relative !important;
-  z-index: 2 !important;
-}
-
-.glitch-mode .instruction-text .static-rainbow-char.animate {
-  animation: characterRainbow 2s linear !important;
-}
-
-@keyframes characterRainbow {
-  0% { 
-    color: #ff0000 !important;
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
-  20% { 
-    color: #ff8000 !important;
-    text-shadow: 0 0 5px #ff8000 !important;
-  }
-  40% { 
-    color: #ffff00 !important;
-    text-shadow: 0 0 5px #ffff00 !important;
-  }
-  60% { 
-    color: #00ff00 !important;
-    text-shadow: 0 0 5px #00ff00 !important;
-  }
-  80% { 
-    color: #0080ff !important;
-    text-shadow: 0 0 5px #0080ff !important;
-  }
-  100% { 
-    color: #ff0000 !important;
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
-}
-
-/* Keep the animation keyframes */
-@keyframes characterRainbow {
-  0%, 100% { 
-    color: #ff0000 !important;
-    text-shadow: 0 0 5px #ff0000 !important;
-  }
-  20% { 
-    color: #ff8000 !important;
-    text-shadow: 0 0 5px #ff8000 !important;
-  }
-  40% { 
-    color: #ffff00 !important;
-    text-shadow: 0 0 5px #ffff00 !important;
-  }
-  60% { 
-    color: #00ff00 !important;
-    text-shadow: 0 0 5px #00ff00 !important;
-  }
-  80% { 
-    color: #0080ff !important;
-    text-shadow: 0 0 5px #0080ff !important;
-  }
-}
-
-/* Add extra effect for glitch mode */
-.glitch-mode .score {
-  font-family: 'Share Tech Mono', monospace;
-  text-shadow: 
-    0 0 10px currentColor,
-    2px 2px 0px rgba(255, 0, 255, 0.5),
-    -2px -2px 0px rgba(0, 255, 255, 0.5);
-}
-
-/* Progress bar styles */
-.level-progress {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 10px;
-  width: 50px;
-  height: 8px;
-  background: rgba(0, 255, 0, 0.1);
-  border: 1px solid #0f0;
-  border-radius: 4px;
-  overflow: visible;
+.hack-item[data-hack-id="banCpp"] h3,
+.hack-item[data-hack-id="banCpp"] p {
   position: relative;
-  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
-  transform-origin: left center;
+  display: inline-block;
+  color: #ff00ff !important;
+  text-shadow: 0 0 10px currentColor !important;
+}
+
+.hack-item[data-hack-id="banCpp"] h3::before,
+.hack-item[data-hack-id="banCpp"] h3::after,
+.hack-item[data-hack-id="banCpp"] p::before,
+.hack-item[data-hack-id="banCpp"] p::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  opacity: 0.8;
+  animation: scoreGlitchOffset 0.3s steps(2) infinite;
+}
+
+.hack-item[data-hack-id="banCpp"] h3::before,
+.hack-item[data-hack-id="banCpp"] p::before {
+  text-shadow: -4px 0 #0ff;
+  animation-delay: 0.1s;
+}
+
+.hack-item[data-hack-id="banCpp"] h3::after,
+.hack-item[data-hack-id="banCpp"] p::after {
+  text-shadow: 4px 0 #f0f;
+  animation-delay: 0.2s;
+} 
+
+/* Add rainbow effect for glitch level 16+ */
+.score[data-glitch-level="16"] {
+  animation: scoreGlitchFlash 3s ease-in-out infinite, rainbowText 8s linear infinite !important;
+}
+
+.score[data-glitch-level="16"] .static-rainbow-char {
+  animation: scoreShake 0.3s steps(2) infinite, rainbowText 8s linear infinite !important;
+  color: transparent !important;
+  background-image: linear-gradient(to right, 
+    #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 800% 100%;
+}
+
+@keyframes rainbowText {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 800% 50%; }
+} 
+
+/* Add enhanced rainbow effect for glitch level 16+ matrix characters */
+.glitch-mode[data-glitch-level="16"] .matrix-character {
+  animation: matrixRainbow16 2s linear infinite !important;
+  filter: brightness(1.5) contrast(1.2) !important;
+  text-shadow: 0 0 8px currentColor !important;
+}
+
+.glitch-mode[data-glitch-level="16"] .matrix-character.critical {
+  animation: matrixRainbow16 1s linear infinite !important;
+  filter: brightness(2) contrast(1.5) !important;
+  font-size: 28px !important;
+}
+
+.glitch-mode[data-glitch-level="16"] .matrix-character.legendary {
+  animation: matrixRainbow16 0.5s linear infinite !important;
+  filter: brightness(2.5) contrast(2) !important;
+  font-size: 32px !important;
+}
+
+@keyframes matrixRainbow16 {
+  0% { color: #ff0000; text-shadow: 0 0 8px #ff0000; }
+  16.6% { color: #ff8000; text-shadow: 0 0 8px #ff8000; }
+  33.3% { color: #ffff00; text-shadow: 0 0 8px #ffff00; }
+  50% { color: #00ff00; text-shadow: 0 0 8px #00ff00; }
+  66.6% { color: #00ffff; text-shadow: 0 0 8px #00ffff; }
+  83.3% { color: #0000ff; text-shadow: 0 0 8px #0000ff; }
+  100% { color: #ff0000; text-shadow: 0 0 8px #ff0000; }
+} 
+
+/* Add glitch level 10+ stats box styling */
+.instruction-text[data-glitch-level="10"] {
+  animation: scoreGlitchFlash 3s ease-in-out infinite !important;
+  border-color: rgba(255, 0, 255, 0.5) !important;
+  background: rgba(255, 0, 255, 0.2) !important;
+}
+
+.instruction-text[data-glitch-level="10"] .static-rainbow-char {
+  animation: scoreGlitch16Colors 4s linear infinite !important;
+  position: relative;
+  display: inline-block;
+}
+
+.instruction-text[data-glitch-level="10"] .static-rainbow-char::before,
+.instruction-text[data-glitch-level="10"] .static-rainbow-char::after {
+  content: attr(data-char);
+  position: absolute;
+  left: 0;
+  opacity: 0.8;
+  animation: scoreGlitchOffset 0.3s steps(2) infinite;
+}
+
+.instruction-text[data-glitch-level="10"] .static-rainbow-char::before {
+  text-shadow: -4px 0 #0ff;
+  animation-delay: 0.1s;
+}
+
+.instruction-text[data-glitch-level="10"] .static-rainbow-char::after {
+  text-shadow: 4px 0 #f0f;
+  animation-delay: 0.2s;
+}
+
+@keyframes scoreGlitchFlash {
+  0%, 90%, 100% { 
+    filter: brightness(1);
+  }
+  95% {
+    filter: brightness(1.5);
+  }
+} 
+
+/* Fix level progress bar for all levels */
+.level-progress {
+  position: relative;
+  width: 100px;
+  height: 15px;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 4px;
+  margin-left: 10px;
+  overflow: hidden;
+  display: inline-block;
 }
 
 .level-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
-  background: #0f0;
+  background: rgba(0, 255, 0, 0.3);
   transition: width 0.3s ease;
 }
 
 .level-progress-text {
   position: absolute;
-  left: calc(100% + 5px);
-  top: 0;
-  transform: translateY(calc(-50% + 4px)); /* Half of progress bar height */
+  width: 100%;
+  text-align: center;
+  line-height: 15px;
+  color: #4fff4f !important;
+  text-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
   font-size: 12px;
-  white-space: nowrap;
-  color: #0f0;
-  line-height: 1;
-  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
-  transform-origin: left center;
+  mix-blend-mode: normal;
+  font-weight: bold;
 }
 
-/* Glitch mode styles */
+/* Override for glitch mode */
 .glitch-mode .level-progress {
-  background: rgba(179, 102, 255, 0.1);
-  border-color: #cc99ff;
+  background: rgba(255, 0, 255, 0.1);
+  border-color: rgba(255, 0, 255, 0.5);
 }
 
 .glitch-mode .level-progress-fill {
-  background: #cc99ff;
+  background: rgba(255, 0, 255, 0.3);
 }
 
 .glitch-mode .level-progress-text {
-  color: #cc99ff;
+  color: #ff4fff !important;
+  text-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
 }
 
-/* Update buy button styles */
-.buy-button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background: rgba(0, 255, 0, 0.2);
-  border: 1px solid #0f0;
-  color: #0f0;
-  cursor: pointer;
-  font-family: monospace;
-  transition: all 0.3s ease;
-  text-shadow: 0 0 5px #0f0;
+/* Add glitch styling for Enable MFA item */
+.hack-item[data-hack-id="enableMfa"] {
+  animation: enableMfaFlash 3s ease-in-out infinite, enableMfaShake 0.5s ease-in-out infinite !important;
+  border-color: rgba(255, 165, 0, 0.8) !important;
+  background: rgba(255, 165, 0, 0.2) !important;
+  transform-origin: center;
 }
 
-.buy-button:hover:not(:disabled) {
-  background: rgba(0, 255, 0, 0.4);
-  transform: scale(1.02);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-}
-
-.buy-button:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  background: rgba(128, 128, 128, 0.1);
-  border-color: #444;
-  color: #444;
-  text-shadow: none;
-}
-
-/* Glitch mode button styles */
-.glitch-mode .buy-button {
-  border-color: #cc99ff;
-  color: #cc99ff;
-  text-shadow: 0 0 5px #cc99ff;
-  background: rgba(179, 102, 255, 0.2);
-}
-
-.glitch-mode .buy-button:hover:not(:disabled) {
-  background: rgba(179, 102, 255, 0.4);
-  box-shadow: 0 0 10px rgba(179, 102, 255, 0.3);
-}
-
-.glitch-mode .buy-button:disabled {
-  opacity: 0.3;
-  background: rgba(128, 128, 128, 0.1);
-  border-color: #444;
-  color: #444;
-  text-shadow: none;
-}
-
-@keyframes levelExplode {
-  0% {
-    opacity: 0;
-    transform: scale(2) translateY(calc(-50% + 4px));
-    filter: blur(10px);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.2) translateY(calc(-50% + 4px));
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(calc(-50% + 4px));
-    filter: blur(0);
-  }
-}
-
-/* Update progress bar styles */
-.level-progress {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 10px;
-  width: 50px;
-  height: 8px;
-  background: rgba(0, 255, 0, 0.1);
-  border: 1px solid #0f0;
-  border-radius: 4px;
-  overflow: visible;
+.hack-item[data-hack-id="enableMfa"] h3,
+.hack-item[data-hack-id="enableMfa"] p {
   position: relative;
-  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
-  transform-origin: left center;
-}
-
-.level-progress-fill {
-  height: 100%;
-  background: #0f0;
-  transition: width 0.3s ease;
-}
-
-.level-progress-text {
-  position: absolute;
-  left: calc(100% + 5px);
-  top: 0;
-  transform: translateY(calc(-50% + 4px)); /* Half of progress bar height */
-  font-size: 12px;
-  white-space: nowrap;
-  color: #0f0;
-  line-height: 1;
-  animation: levelExplode 0.4s cubic-bezier(.17,.67,.24,1.29);
-  transform-origin: left center;
-}
-
-/* Make hack items more compact on mobile */
-@media (max-width: 480px) {
-  .hack-overlay {
-    padding: 10px;
-    width: 90%;  /* Reduce width to add padding */
-    max-width: 360px;  /* Slightly smaller max-width */
-    right: 5%;  /* Center the overlay */
-  }
-
-  .hack-overlay-content {
-    padding-right: 5px;  /* Add some padding for content */
-  }
-
-  .hack-item {
-    margin: 10px 0;
-    padding: 10px;
-  }
-
-  .hack-info h3 {
-    font-size: 14px;
-    word-break: break-word;  /* Allow long words to break */
-  }
-
-  .hack-info p {
-    font-size: 12px;
-    margin: 3px 0;
-    word-break: break-word;  /* Allow long words to break */
-  }
-
-  .buy-button {
-    padding: 8px;
-    margin-top: 5px;
-  }
-
-  .level-progress {
-    width: 40px;
-    height: 6px;
-  }
-
-  .level-progress-text {
-    font-size: 10px;
-  }
-
-  .close-button {
-    padding: 2px 30px;
-    font-size: 20px;
-    right: 10px;
-  }
-} 
-
-/* Add flashing animation for the hack button */
-@keyframes hackButtonFlash {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 10px #f00;
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px #f00;
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 10px #f00;
-  }
-}
-
-.hack-button.first-time {
-  animation: hackButtonFlash 1s ease-in-out infinite;
-}
-
-/* Update glitch mode version */
-.glitch-mode .hack-button.first-time {
-  animation: hackButtonGlitchFlash 1s ease-in-out infinite;
-}
-
-@keyframes hackButtonGlitchFlash {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 10px #b366ff;
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px #b366ff;
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 10px #b366ff;
-  }
-} 
-
-/* Remove cursor: pointer from all clickable elements */
-.matrix-background,
-.click-area,
-.hack-button,
-.buy-button,
-.close-button,
-.matrix-character:hover {
-  cursor: default !important;
-}
-
-/* Override any hover states */
-.hack-button:hover,
-.buy-button:hover,
-.close-button:hover {
-  cursor: default !important;
-}
-
-/* Keep not-allowed cursor for disabled buttons */
-.buy-button:disabled {
-  cursor: not-allowed !important;
-} 
-
-/* Base style for glitch level text */
-.glitch-mode .instruction-text .static-rainbow-char {
   display: inline-block;
-  margin: 0 1px;
-  position: relative;
-  z-index: 2;
+  color: #ffa500 !important;
+  text-shadow: 0 0 10px currentColor !important;
 }
 
-/* Animation when character is flashing */
-.glitch-mode .instruction-text .static-rainbow-char.animate {
-  animation: characterFlash 2s linear;
-}
-
-@keyframes characterFlash {
-  0% {
-    color: #ff0000;
-    text-shadow: 0 0 5px #ff0000;
-  }
-  20% {
-    color: #ff8000;
-    text-shadow: 0 0 5px #ff8000;
-  }
-  40% {
-    color: #ffff00;
-    text-shadow: 0 0 5px #ffff00;
-  }
-  60% {
-    color: #00ff00;
-    text-shadow: 0 0 5px #00ff00;
-  }
-  80% {
-    color: #0080ff;
-    text-shadow: 0 0 5px #0080ff;
-  }
-  100% {
-    color: #ff0000;
-    text-shadow: 0 0 5px #ff0000;
-  }
-} 
-
-/* Remove all other rainbow/glitch text styles and keep only these */
-.glitch-mode .static-rainbow-char {
-  display: inline-block;
-  color: #ff0000;  /* Start with red */
-  text-shadow: 0 0 5px #ff0000;
-  animation: glitchFlash 8s steps(8) infinite;  /* Much slower rotation */
-  position: relative;
-}
-
-/* Add glitch effect with pseudo-elements */
-.glitch-mode .static-rainbow-char::before,
-.glitch-mode .static-rainbow-char::after {
-  content: attr(data-char);
+.hack-item[data-hack-id="enableMfa"] h3::before,
+.hack-item[data-hack-id="enableMfa"] h3::after,
+.hack-item[data-hack-id="enableMfa"] p::before,
+.hack-item[data-hack-id="enableMfa"] p::after {
+  content: attr(data-text);
   position: absolute;
   left: 0;
   opacity: 0.8;
-  animation: glitchOffset 0.3s steps(2) infinite;
+  animation: scoreGlitchOffset 0.3s steps(2) infinite;
 }
 
-.glitch-mode .static-rainbow-char::before {
+.hack-item[data-hack-id="enableMfa"] h3::before,
+.hack-item[data-hack-id="enableMfa"] p::before {
+  text-shadow: -4px 0 #ff8000;
+  animation-delay: 0.1s;
+}
+
+.hack-item[data-hack-id="enableMfa"] h3::after,
+.hack-item[data-hack-id="enableMfa"] p::after {
+  text-shadow: 4px 0 #ffb700;
+  animation-delay: 0.2s;
+}
+
+@keyframes enableMfaShake {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(-2px, 1px) scale(1.02);
+  }
+  50% {
+    transform: translate(2px, -1px) scale(1);
+  }
+  75% {
+    transform: translate(-1px, -1px) scale(1.02);
+  }
+}
+
+@keyframes enableMfaFlash {
+  0%, 100% { 
+    background: rgba(255, 165, 0, 0.2) !important;
+    border-color: rgba(255, 165, 0, 0.8) !important;
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.2);
+  }
+  50% { 
+    background: rgba(255, 165, 0, 0.4) !important;
+    border-color: rgba(255, 165, 0, 1) !important;
+    box-shadow: 0 0 30px rgba(255, 165, 0, 0.4);
+  }
+} 
+
+/* Add ascension animations */
+@keyframes ascendToWhite {
+  0% {
+    background: black;
+  }
+  100% {
+    background: white;
+  }
+}
+
+@keyframes fadeInMessage {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+} 
+
+/* Add continuous shake for glitch level 18+ hack button */
+.hack-button[data-glitch-level="18"] {
+  animation: continuousShake 0.3s linear infinite !important;
+  border-color: rgba(255, 0, 255, 0.8) !important;
+  background: rgba(255, 0, 255, 0.3) !important;
+  color: #ff00ff !important;
+  text-shadow: 0 0 8px currentColor !important;
+}
+
+@keyframes continuousShake {
+  0% {
+    transform: translate(-2px, 2px) rotate(-2deg);
+  }
+  25% {
+    transform: translate(2px, -2px) rotate(2deg);
+  }
+  50% {
+    transform: translate(-1px, -1px) rotate(-1deg);
+  }
+  75% {
+    transform: translate(2px, 1px) rotate(1deg);
+  }
+  100% {
+    transform: translate(-2px, 2px) rotate(-2deg);
+  }
+} 
+
+/* Add special styling for ascension item */
+.hack-item[data-hack-id="ascend"] {
+  animation: ascendItemPulse 2s ease-in-out infinite !important;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.hack-item[data-hack-id="ascend"] h3,
+.hack-item[data-hack-id="ascend"] p {
+  color: white !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8) !important;
+}
+
+.hack-item[data-hack-id="ascend"] .buy-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: white !important;
+  color: white !important;
+  text-shadow: 0 0 5px white !important;
+}
+
+.hack-item[data-hack-id="ascend"] .buy-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4) !important;
+}
+
+@keyframes ascendItemPulse {
+  0%, 100% {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    border-color: white;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+  }
+} 
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+} 
+
+/* Update score styling for glitch mode */
+.glitch-mode .score {
+  font-family: 'Share Tech Mono', monospace !important;
+  letter-spacing: 2px !important;
+  font-weight: bold !important;
+  filter: blur(0.2px) !important;
+  text-shadow: 
+    2px 0 0 rgba(255,0,255,0.5),
+    -2px 0 0 rgba(0,255,255,0.5),
+    0 0 10px currentColor !important;
+  position: relative;
+}
+
+.glitch-mode .score::before,
+.glitch-mode .score::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: scoreGlitchOffset 0.3s steps(2) infinite;
+}
+
+.glitch-mode .score::before {
   text-shadow: -2px 0 #0ff;
   animation-delay: 0.1s;
 }
 
-.glitch-mode .static-rainbow-char::after {
+.glitch-mode .score::after {
   text-shadow: 2px 0 #f0f;
   animation-delay: 0.2s;
 }
 
-@keyframes glitchFlash {
-  0%, 100% { 
-    color: #ff0000;
-    text-shadow: 0 0 5px #ff0000;
-    transform: skew(0deg);
-  }
-  20% { 
-    color: #ff8000;
-    text-shadow: 0 0 5px #ff8000;
-    transform: skew(2deg);
-  }
-  40% { 
-    color: #ffff00;
-    text-shadow: 0 0 5px #ffff00;
-    transform: skew(-2deg);
-  }
-  60% { 
-    color: #00ff00;
-    text-shadow: 0 0 5px #00ff00;
-    transform: skew(1deg);
-  }
-  80% { 
-    color: #0080ff;
-    text-shadow: 0 0 5px #0080ff;
-    transform: skew(-1deg);
-  }
+/* Make sure this overrides other glitch effects */
+.score[data-glitch-level="16"],
+.score[data-glitch-level="10"] {
+  font-family: 'Share Tech Mono', monospace !important;
+  letter-spacing: 2px !important;
+  font-weight: bold !important;
+  filter: blur(0.2px) !important;
+  text-shadow: 
+    2px 0 0 rgba(255,0,255,0.5),
+    -2px 0 0 rgba(0,255,255,0.5),
+    0 0 10px currentColor !important;
+} 
+
+/* Add enhanced rainbow effect for glitch level text */
+.glitch-mode .stats-text span[data-char] {
+  background: linear-gradient(
+    to right,
+    #ff0000,
+    #ff8000,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #ff00ff,
+    #ff0000
+  ) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  animation: statsRainbow 2s linear infinite !important;
+  background-size: 800% 100% !important;
+  filter: brightness(2) contrast(1.5) !important;
+  text-shadow: none !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-weight: bold !important;
+  font-size: 1em !important;
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.glitch-mode .stats-text span[data-char]::before,
+.glitch-mode .stats-text span[data-char]::after {
+  content: attr(data-char) !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  mix-blend-mode: screen !important;
+  animation: glitchOffset 0.2s steps(2) infinite !important;
+  opacity: 0.8 !important;
+}
+
+.glitch-mode .stats-text span[data-char]::before {
+  text-shadow: 2px 0 #ff00ff !important;
+  animation-delay: 0.1s !important;
+}
+
+.glitch-mode .stats-text span[data-char]::after {
+  text-shadow: -2px 0 #00ffff !important;
+  animation-delay: 0.15s !important;
 }
 
 @keyframes glitchOffset {
-  0%, 100% {
-    clip-path: inset(50% 0 50% 0);
-    transform: translate(-2px);
-  }
-  50% {
-    clip-path: inset(0% 50% 0% 50%);
-    transform: translate(2px);
-  }
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(-2px, 2px); }
+  50% { transform: translate(2px, -2px); }
+  75% { transform: translate(-1px, -1px); }
+}
+
+@keyframes statsRainbow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 800% 50%; }
 } 
